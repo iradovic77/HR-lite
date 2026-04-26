@@ -1,5 +1,6 @@
 using System.Text;
 using IdentityService.Data;
+using IdentityService.Models;
 using IdentityService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,22 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     db.Database.EnsureCreated();
+
+    // Dev seed: kreira admin usera ako baza nema nijednog korisnika
+    if (!db.Users.Any())
+    {
+        var adminRole = db.Roles.First(r => r.Name == "Admin");
+        var admin = new User
+        {
+            Email = "admin@hr-lite.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+            FirstName = "Admin",
+            LastName = "User"
+        };
+        db.Users.Add(admin);
+        db.UserRoles.Add(new UserRole { UserId = admin.Id, RoleId = adminRole.Id });
+        db.SaveChanges();
+    }
 }
 
 if (app.Environment.IsDevelopment())
