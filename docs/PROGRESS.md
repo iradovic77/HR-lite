@@ -1,8 +1,8 @@
 # HR-lite — Napredak
 
-## Status: Inicijalizacija projekta
+## Status: Identity Service — u toku
 
-Posljednje ažuriranje: 2026-04-24
+Posljednje ažuriranje: 2026-04-26
 
 ---
 
@@ -11,16 +11,17 @@ Posljednje ažuriranje: 2026-04-24
 ### Faza 1 — Osnovna infrastruktura
 - [x] Definiranje arhitekture
 - [x] Kreiranje strukture projekta
-- [ ] Docker Compose setup (PostgreSQL, servisi)
+- [x] Docker Compose setup (PostgreSQL + identity-service)
 - [ ] API Gateway (YARP) — osnovna konfiguracija
 - [ ] CI/CD pipeline (GitHub Actions)
 
 ### Faza 2 — Identity Service
-- [ ] .NET Core 8 projekt setup
-- [ ] EF Core + PostgreSQL konekcija
-- [ ] User entitet + migracija
-- [ ] JWT login / refresh endpoint
-- [ ] Role-based autorizacija
+- [x] .NET Core 8 projekt setup
+- [x] EF Core + PostgreSQL konekcija (shema: hr_identity)
+- [x] User, Role, UserRole entiteti + EnsureCreated (seed: 4 role)
+- [x] JWT login endpoint (POST /api/auth/login)
+- [ ] JWT refresh token endpoint
+- [ ] Role-based autorizacija (zaštićeni endpointi)
 
 ### Faza 3 — Employee Service
 - [ ] .NET Core 8 projekt setup
