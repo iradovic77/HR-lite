@@ -1,63 +1,40 @@
 # HR-lite — Napredak
 
-## Status: Identity Service — u toku
+Posljednje ažuriranje: 2026-05-12
 
-Posljednje ažuriranje: 2026-04-26
+## Faze — pregled
 
----
+| Faza | Naziv | Status |
+|------|-------|--------|
+| 1 | Osnovna infrastruktura | 🟡 U toku |
+| 2 | Identity Service | 🟡 U toku |
+| 3 | Employee Service | 🔴 Nije početo |
+| 4 | Org Service | 🔴 Nije početo |
+| 5 | Leave Service | 🔴 Nije početo |
+| 6 | Document Service | 🔴 Nije početo |
+| 7 | React Frontend | 🔴 Nije početo |
 
-## Faze
+## Faza 1 — Osnovna infrastruktura
 
-### Faza 1 — Osnovna infrastruktura
 - [x] Definiranje arhitekture
 - [x] Kreiranje strukture projekta
 - [x] Docker Compose setup (PostgreSQL + identity-service)
-- [ ] API Gateway (YARP) — osnovna konfiguracija
+- [ ] API Gateway (YARP) — osnovna konfiguracija → [gateway.md](gateway.md)
 - [ ] CI/CD pipeline (GitHub Actions)
 
-### Faza 2 — Identity Service
-- [x] .NET Core 8 projekt setup
-- [x] EF Core + PostgreSQL konekcija (shema: hr_identity)
-- [x] User, Role, UserRole entiteti + EnsureCreated (seed: 4 role)
-- [x] JWT login endpoint (POST /api/auth/login)
-- [ ] JWT refresh token endpoint
-- [ ] Role-based autorizacija (zaštićeni endpointi)
+## Detalji po servisu
 
-### Faza 3 — Employee Service
-- [ ] .NET Core 8 projekt setup
-- [ ] Employee entitet + migracija
-- [ ] CRUD API endpoints
-- [ ] JWT validacija (middleware)
-- [ ] Audit log
-
-### Faza 4 — Org Service
-- [ ] Department / Team entiteti
-- [ ] Org chart endpoint
-- [ ] Linking zaposlenika s odjeljenjem
-
-### Faza 5 — Leave Service
-- [ ] LeaveType, LeaveRequest entiteti
-- [ ] Tok odobrenja (submit → approve/reject)
-- [ ] Bilans odsustva po zaposleniku
-
-### Faza 6 — Document Service
-- [ ] Metadata entitet
-- [ ] File upload/download (lokalni storage)
-- [ ] Vezanje dokumenta za zaposlenika
-
-### Faza 7 — React Frontend
-- [ ] Projekt setup (Vite + React + TypeScript)
-- [ ] Routing struktura
-- [ ] Auth flow (login, token refresh)
-- [ ] Employee lista i detalji
-- [ ] Leave request forma
-
----
+- [Identity Service](services/identity-service.md)
+- [Employee Service](services/employee-service.md)
+- [Org Service](services/org-service.md)
+- [Leave Service](services/leave-service.md)
+- [Document Service](services/document-service.md)
+- [Frontend](frontend.md)
 
 ## Blokatori
 
 _Nema trenutnih blokatora._
 
-## Napomene
+---
 
-_Ovaj fajl se ažurira ručno na kraju svake radne sesije._
+_Ovaj fajl se ažurira na kraju svake radne sesije._
