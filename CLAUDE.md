@@ -1,6 +1,6 @@
 # HR-lite — Instrukcije za razvoj
 
-Ovaj fajl definiše pravila i konvencije kojih se Claude mora pridržavati pri razvoju HR-lite projekta.
+Ovaj fajl definira pravila i konvencije kojih se Claude mora pridržavati pri razvoju HR-lite projekta.
 Pravila su obavezna osim ako nije eksplicitno drugačije navedeno.
 
 ---
@@ -49,9 +49,9 @@ public Guid     UpdatedBy  { get; set; }  // UserId iz JWT claims
 
 Postavljaju se automatski u `DbContext.SaveChanges()` override-u — nikad ručno u kontrolerima ili servisima.
 
-### Historijski podaci
+### Povijesni podaci
 
-Entiteti koji zahtijevaju historijat promjena (npr. `EmployeeHistory`) koriste **ValidFrom / ValidTo** obrazac:
+Entiteti koji zahtijevaju praćenje povijesti promjena (npr. `EmployeeHistory`) koriste **ValidFrom / ValidTo** obrazac:
 
 ```csharp
 public DateTime  ValidFrom  { get; set; }
@@ -214,3 +214,11 @@ services/<ime-servisa>/
 - Nakon svake sesije razvoja ažurirati `docs/PROGRESS.md` i odgovarajući `docs/services/<ime>.md`.
 - Arhitekturne odluke dokumentovati u `docs/DECISIONS.md` po ADR formatu.
 - `CLAUDE.md` se ažurira samo kada se mijenjaju temeljna pravila projekta.
+
+  
+## Buduće funkcionalnosti
+- Impersonation (Act As): Admin mora moći pregledavati 
+  sustav "kao" drugi korisnik. Audit log uvijek bilježi 
+  stvarnog korisnika + impersoniranog korisnika.
+  Implementira se kroz JWT claims: 'sub' (stvarni), 
+  'acting_as' (impersonirani).
