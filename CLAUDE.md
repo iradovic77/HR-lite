@@ -177,6 +177,15 @@ Npr. Manager može čitati `employees:org`, ali ne i `employees:contract`.
 
 ---
 
+## Višejezičnost
+- Default jezik: hrvatski (hr)
+- Dodatni jezik: engleski (en)
+- UI elementi: resursni fajlovi (hr.json, en.json)
+- Šifarnici: prijevodi u bazi za svaki jezik
+- Arhitektura mora podržavati dodavanje novih jezika naknadno
+
+---
+
 ## Struktura projekta (konvencija)
 
 ```
