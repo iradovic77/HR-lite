@@ -35,6 +35,7 @@ Svaki servis koristi zasebnu PostgreSQL shemu:
 | org-service | `hr_org` |
 | leave-service | `hr_leave` |
 | document-service | `hr_document` |
+| codebook-service | `hr_codebook` |
 
 ### Audit kolone
 
@@ -66,6 +67,16 @@ Novi zapis se kreira pri svakoj promjeni; prethodni dobiva `ValidTo = DateTime.U
 - Logiranje se implementira u servisnom sloju (ne u kontroleru, ne u repozitoriju).
 - `AuditLog` tablica bilježi: `EntityName`, `EntityId`, `Action` (Created/Updated/Deleted), `ChangedByUserId`, `ChangedAt`, `OldValues` (JSON), `NewValues` (JSON).
 - **Nikad koristiti database triggere za audit log** — promjena mora biti vidljiva i testabilna u C# kodu.
+
+### Šifarnici (codebook tablice)
+
+- **Šifarnici se nikad ne brišu fizički** — samo deaktiviraju postavljanjem `IsActive = false` (soft delete).
+- Svaka šifarnik tablica **obavezno** ima kolone `IsActive` (bool, default: `true`) i `Ordinal` (int, default: `0`).
+  - `IsActive = false` → zapis je neaktivan i **ne prikazuje se** u combo-ima / dropdown-ima.
+  - `Ordinal` → custom redoslijed prikaza u combo-ima; niži broj = više u listi.
+- API endpointi za šifarnike po defaultu vraćaju samo aktivne zapise; query param `?includeInactive=true` vraća sve.
+- Seed podaci za standardne šifarnike idu kroz **EF Core migracije** (`HasData`) — ne kroz SQL skripte.
+- Sistemski seed zapisi koriste `CreatedBy = Guid.Empty` kao oznaku da ih je kreirao sistem, ne korisnik.
 
 ### Zabrane u bazi
 
