@@ -78,6 +78,12 @@ Novi zapis se kreira pri svakoj promjeni; prethodni dobiva `ValidTo = DateTime.U
 - Seed podaci za standardne šifarnike idu kroz **EF Core migracije** (`HasData`) — ne kroz SQL skripte.
 - Sistemski seed zapisi koriste `CreatedBy = Guid.Empty` kao oznaku da ih je kreirao sistem, ne korisnik.
 
+### Raw SQL
+
+- Kad je raw SQL neophodan (rijetki slučajevi u migracijama ili složenim upitima), pisati što standardniji **ANSI SQL** — izbjegavati PostgreSQL-specifičnu sintaksu gdje god je moguće.
+- Cilj: lakša eventualna migracija na drugu bazu bez masovnih izmjena SQL-a.
+- Primjer: koristiti `COALESCE` umjesto `ISNULL`, standardne JOIN-ove, izbjegavati `::` cast operator.
+
 ### Zabrane u bazi
 
 - **Nikad stored procedures.** Sva poslovna logika je u C# kodu.
@@ -188,12 +194,41 @@ Npr. Manager može čitati `employees:org`, ali ne i `employees:contract`.
 
 ---
 
-## Višejezičnost
-- Default jezik: hrvatski (hr)
-- Dodatni jezik: engleski (en)
-- UI elementi: resursni fajlovi (hr.json, en.json)
-- Šifarnici: prijevodi u bazi za svaki jezik
-- Arhitektura mora podržavati dodavanje novih jezika naknadno
+## Višejezičnost — Translation sustav
+
+Višejezičnost se implementira kroz generički Translation sustav. **Nikad ne dodavati `Name`, `NameEn`, `NameDe`... kolone** u tablice — to ne skalira.
+
+### Tablice
+
+**`language`** — podržani jezici:
+
+| Kolona | Napomena |
+|--------|----------|
+| `Id` | Guid, PK |
+| `Code` | ISO 639-1 — `hr`, `en`, `de` |
+| `Name` | Naziv na vlastitom jeziku |
+| + audit kolone | |
+
+**`translation`** — generička tablica prijevoda za SVE entitete:
+
+| Kolona | Napomena |
+|--------|----------|
+| `Id` | Guid, PK |
+| `EntityType` | Naziv tablice — npr. `codebook_gender` |
+| `EntityId` | Id retka koji se prevodi |
+| `LanguageId` | FK → `language.Id` |
+| `FieldName` | Polje koje se prevodi — npr. `Name` |
+| `Value` | Prevedeni tekst |
+| + audit kolone | |
+
+### Pravila
+
+- **Hrvatski (`hr`) prijevod je OBAVEZAN** za sve šifarnike i prevedive entitete.
+- Ostali jezici su opcionalni.
+- **Fallback logika** (implementira se u servisnom sloju): traženi jezik → `hr` → `Code`.
+- `Code` kolona entiteta je neutralni identifikator — **nikad se ne prevodi**.
+- Novi jezik = jedan redak u `language` tablici. **Bez izmjene sheme** ostalih tablica.
+- Seed data za prijevode ide kroz EF Core migracije (`HasData` na `Translation` entitetu).
 
 ---
 

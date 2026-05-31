@@ -7,41 +7,92 @@
 ## Odgovornost
 
 Centralni registar svih šifarnika (lookup tablica) koji se koriste u ostalim servisima.
-Šifarnici su dijeljeni podaci — npr. spol, vrsta ugovora, razlog odsustva, država, županija.
-
 Svi servisi dohvaćaju šifarnike iz ovog servisa.
 
 ---
 
 ## Pravila za sve šifarnik tablice
 
+### Standardne kolone
+
 Svaka šifarnik tablica **obavezno** ima sljedeće kolone:
 
 | Kolona | Tip | Default | Napomena |
 |--------|-----|---------|----------|
 | `Id` | Guid | — | PK |
-| `Code` | string | — | Kratka šifra (npr. `M`, `HR`, `BA`) |
-| `Name` | string | — | Naziv na lokalnom jeziku |
-| `NameEn` | string? | null | Naziv na engleskom (i18n) |
+| `Code` | string | — | Neutralna šifra, nikad se ne prevodi |
 | `IsActive` | bool | `true` | `false` = soft delete |
 | `Ordinal` | int | `0` | Custom redoslijed u combo-ima |
 | `CreatedAt` | DateTime | — | Audit |
 | `UpdatedAt` | DateTime | — | Audit |
-| `CreatedBy` | Guid | — | Audit |
-| `UpdatedBy` | Guid | — | Audit |
+| `CreatedBy` | Guid | — | Audit — `Guid.Empty` za seed |
+| `UpdatedBy` | Guid | — | Audit — `Guid.Empty` za seed |
 
-### IsActive
-- `IsActive = false` znači **soft delete** — zapis ostaje u bazi, ali se **ne prikazuje** u combo-ima / dropdown-ima na UI-u.
-- Šifarnici se **nikad ne brišu fizički** iz baze.
-- API endpointi po defaultu vraćaju samo aktivne zapise; query param `?includeInactive=true` vraća sve.
+> **Nema `Name` kolone** — svi nazivi čuvaju se u `translation` tablici.
 
-### Ordinal
-- Definira custom redoslijed prikaza u combo-ima, neovisno o abecednom redu ili ID-u.
-- Niži broj = više u listi. Zapisi s istim `Ordinal` sortiraju se po `Name`.
+### IsActive — soft delete
 
-### Višejezičnost
-- Svi šifarnici podržavaju višejezičnost putem `Name` (hr) i `NameEn` (en) kolona.
-- Arhitektura mora podržavati dodavanje novih jezika naknadno bez promjene strukture tablice.
+- `IsActive = false` znači **deaktiviran** zapis — ostaje u bazi, ne prikazuje se u combo-ima.
+- **Šifarnici se nikad ne brišu fizički.** Uvijek `IsActive = false`.
+- API po defaultu vraća samo aktivne zapise; `?includeInactive=true` vraća sve.
+
+### Ordinal — redoslijed u combo-ima
+
+- Niži broj = više u listi.
+- Zapisi s istim `Ordinal` sortiraju se po `Code`.
+
+---
+
+## Višejezičnost — Translation sustav
+
+Nazivi šifarnika **ne** čuvaju se u kolonama tablice. Koristi se generički Translation sustav koji omogućava dodavanje novih jezika bez ikakve izmjene sheme.
+
+### Tablica: `language`
+
+| Kolona | Tip | Napomena |
+|--------|-----|----------|
+| `Id` | Guid | PK |
+| `Code` | string(10) | ISO 639-1 — `hr`, `en`, `de`... |
+| `Name` | string(100) | Naziv na vlastitom jeziku — `Hrvatski`, `English` |
+| + audit kolone | | |
+
+**Seed:**
+
+| Code | Name |
+|------|------|
+| hr | Hrvatski |
+| en | English |
+
+### Tablica: `translation`
+
+Generička tablica prijevoda za **sve** entitete u sustavu.
+
+| Kolona | Tip | Napomena |
+|--------|-----|----------|
+| `Id` | Guid | PK |
+| `EntityType` | string(100) | Naziv tablice — npr. `codebook_gender` |
+| `EntityId` | Guid | Id retka koji se prevodi |
+| `LanguageId` | Guid | FK → `language.Id` (pravi DB constraint, ista shema) |
+| `FieldName` | string(100) | Polje koje se prevodi — npr. `Name` |
+| `Value` | string(500) | Prevedeni tekst |
+| + audit kolone | | |
+
+**Unique index:** `(EntityType, EntityId, LanguageId, FieldName)`
+
+### Fallback logika (implementira se u servisnom sloju)
+
+```
+1. Traženi jezik (npr. "de")  → ako ne postoji prijevod:
+2. Hrvatski ("hr")             → ako ne postoji prijevod:
+3. Code kolona entiteta        ← uvijek postoji, nikad null
+```
+
+### Pravila višejezičnosti
+
+- **Hrvatski prijevod je OBAVEZAN** za svaki šifarnik zapis.
+- Ostali jezici su opcionalni.
+- Novi jezik = jedan redak u `language` tablici + prijevodi u `translation`. **Bez izmjene sheme.**
+- `Code` kolona je neutralni identifikator — nikad se ne prevodi.
 
 ---
 
@@ -49,15 +100,13 @@ Svaka šifarnik tablica **obavezno** ima sljedeće kolone:
 
 ### codebook_gender — Spol
 
-| Code | Name | NameEn |
-|------|------|--------|
-| M | Muško | Male |
-| F | Žensko | Female |
-| O | Ostalo | Other |
+| Code | Ordinal | hr (Name) | en (Name) |
+|------|---------|-----------|-----------|
+| M | 1 | Muško | Male |
+| F | 2 | Žensko | Female |
+| O | 3 | Ostalo | Other |
 
 ### Lokacijska hijerarhija
-
-Hijerarhija lokacija ide od najveće prema najmanjoj administrativnoj jedinici:
 
 ```
 Država (codebook_country)
@@ -66,53 +115,43 @@ Država (codebook_country)
               └── Naselje (codebook_settlement)
 ```
 
-> **Napomena:** Relacije između razina nisu DB foreign key-evi — provode se na aplikativnom nivou.
+> Relacije između razina su **logički FK-ovi** (Guid polje) — bez DB foreign key-eva.  
 > U inicijalnoj implementaciji pouzdani podaci postoje samo za Hrvatsku i Bosnu i Hercegovinu.
-> Lista šifarnika proširivat će se kako se definiraju ostale grupe podataka.
 
 ### codebook_country — Država
 
-Matična lista država. Koristi ISO 3166-1 alpha-2 za `Code` (npr. `BA`, `HR`, `RS`).
-Čuva i naziv državljanstva (npr. "hrvatska" / "hrvatsko") u `Name` polju po potrebi.
+ISO 3166-1 alpha-2 za `Code` (npr. `BA`, `HR`, `RS`).
 
 ### codebook_county — Županija
 
-Administrativna jedinica unutar države.
-
-| Kolona | Napomena |
-|--------|----------|
-| `CountryId` | Logički FK → codebook_country |
+| Extra kolona | Tip | Napomena |
+|--------------|-----|----------|
+| `CountryId` | Guid | Logički FK → codebook_country |
 
 ### codebook_municipality — Općina
 
-Administrativna jedinica unutar županije.
-
-| Kolona | Napomena |
-|--------|----------|
-| `CountyId` | Logički FK → codebook_county |
+| Extra kolona | Tip | Napomena |
+|--------------|-----|----------|
+| `CountyId` | Guid | Logički FK → codebook_county |
 
 ### codebook_settlement — Naselje
 
-Najniža administrativna jedinica (grad, selo, naseljeno mjesto).
-
-| Kolona | Napomena |
-|--------|----------|
-| `MunicipalityId` | Logički FK → codebook_municipality |
+| Extra kolona | Tip | Napomena |
+|--------------|-----|----------|
+| `MunicipalityId` | Guid | Logički FK → codebook_municipality |
 
 ### codebook_employment_type — Vrsta zaposlenja
 
-| Code | Name | NameEn |
-|------|------|--------|
+| Code | hr | en |
+|------|----|----|
 | FT | Puno radno vrijeme | Full-time |
 | PT | Nepuno radno vrijeme | Part-time |
 | CT | Ugovor o djelu | Contract |
 
 ### codebook_leave_type — Vrsta odsustva
 
-Početni seed — može se proširivati kroz admin sučelje.
-
-| Code | Name | NameEn |
-|------|------|--------|
+| Code | hr | en |
+|------|----|----|
 | AL | Godišnji odmor | Annual leave |
 | SL | Bolovanje | Sick leave |
 | PL | Roditeljski dopust | Parental leave |
@@ -122,11 +161,9 @@ Početni seed — može se proširivati kroz admin sučelje.
 
 ## Endpointi (generički pattern)
 
-Svaki šifarnik izlaže iste endpointe:
-
 | Metoda | Putanja | Uloge | Napomena |
 |--------|---------|-------|----------|
-| GET | `/api/codebook/{type}` | Svi autorizirani | Aktivni zapisi, sortirani po Ordinal/Name |
+| GET | `/api/codebook/{type}` | Svi autorizirani | Aktivni, sortirani po Ordinal/Code |
 | GET | `/api/codebook/{type}?includeInactive=true` | Admin, HR | Svi zapisi |
 | GET | `/api/codebook/{type}/{id}` | Svi autorizirani | Jedan zapis |
 | POST | `/api/codebook/{type}` | Admin | Kreiranje |
@@ -135,19 +172,24 @@ Svaki šifarnik izlaže iste endpointe:
 
 `{type}` = `gender`, `country`, `county`, `municipality`, `settlement`, `employment-type`, `leave-type`
 
+Response uključuje nazive za traženi jezik (header `Accept-Language` ili query param `?lang=hr`).
+
 ---
 
 ## Zadaci
 
 - [x] Definirati strukturu šifarnik dokumenta
-- [x] `CodebookBase` apstraktna klasa s zajedničkim kolonama
-- [x] Gender model + EF Core seed data (primjer za učenje)
+- [x] `CodebookBase` apstraktna klasa (Code, IsActive, Ordinal, audit)
+- [x] `IAuditable` interface za automatske audit kolone
+- [x] `Language` model + seed (hr, en)
+- [x] `Translation` model + seed za Gender
+- [x] Gender model + seed (M, F, O)
 - [x] Country, County, Municipality, Settlement modeli
-- [x] EF Core migracija s InsertData za Gender
+- [x] EF Core migracija s punim seed data i Translation FK-om
 - [x] Dockerfile
 - [ ] .NET Core 8 projekt pokrenut i testiran lokalno
-- [ ] EmploymentType, LeaveType modeli + seed data
-- [ ] Generic controller pattern za CRUD
+- [ ] EmploymentType, LeaveType modeli + seed data + prijevodi
+- [ ] Generic controller pattern za CRUD s Translation dohvatom
 - [ ] Swagger dokumentacija
 - [ ] docker-compose integracija
 
@@ -155,6 +197,8 @@ Svaki šifarnik izlaže iste endpointe:
 
 ## Napomene
 
-- Šifarnici su **read-heavy** — razmotriti cache na gateway ili servis nivou u kasnijoj fazi.
-- Seed data za standardne šifarnike (spol, vrste odsustva) ide kroz **EF Core migracije** (`HasData`), ne kroz SQL skripte.
-- Admin korisnici mogu dodavati nove zapise kroz API; sistemski seed zapisi imaju `CreatedBy = Guid.Empty` (sistem).
+- Šifarnici su **read-heavy** — razmotriti cache u kasnijoj fazi.
+- Seed data ide kroz **EF Core migracije** (`HasData`) — ne kroz SQL skripte.
+- Sistemski seed zapisi koriste `CreatedBy = Guid.Empty`.
+- `LanguageId` FK u `translation` je **pravi DB constraint** jer su obje tablice u istoj shemi (`hr_codebook`).
+- FK-ovi između šifarnika (npr. County → Country) su **logički** — bez DB constraint-a.

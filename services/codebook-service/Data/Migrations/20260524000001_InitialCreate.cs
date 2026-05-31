@@ -7,19 +7,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 // EF CORE MIGRACIJA — Edukativni komentar
 // =============================================================================
 //
-// Ovaj fajl je generiran naredbom:
-//   dotnet ef migrations add InitialCreate
-//
-// EF Core čita model iz CodebookDbContext.OnModelCreating() i generira:
-//   - CreateTable()  → za svaki DbSet koji ne postoji u bazi
-//   - InsertData()   → za svaki HasData() poziv u OnModelCreating()
-//   - CreateIndex()  → za svaki HasIndex() poziv
-//
-// Migracija se primjenjuje naredbom:
+// Ova migracija se primjenjuje naredbom:
 //   dotnet ef database update
-// ili automatski pri pokretanju servisa (vidi Program.cs → app.MigrateDatabase()).
+// ili automatski pri pokretanju servisa (vidi Program.cs → db.Database.Migrate()).
 //
-// NIKAD ručno mijenjati ovaj fajl — svaka izmjena modela treba novu migraciju.
+// EF Core čita OnModelCreating() iz CodebookDbContext i generira:
+//   CreateTable()  → za svaki DbSet
+//   CreateIndex()  → za svaki HasIndex()
+//   InsertData()   → za svaki HasData()
+//   AddForeignKey()→ za svaki HasForeignKey() s pravim constraint-om
+//
+// ZAŠTO SU SEED ID-EVI HARDKODIRANI:
+//   EF Core koristi ID-eve iz HasData() da prati koji su zapisi "seed".
+//   Ako bismo koristili Guid.NewGuid(), svaka nova migracija bi generirala
+//   nove INSERT-e jer bi stare ne mogla prepoznati — duplicirali bi se podaci.
+//
+// NAPOMENA O OVOJ MIGRACIJI:
+//   Migracija je ručno ažurirana prije prvog deployementa (baza nije bila
+//   pokrenuta) kako bi reflektirala novi Translation sustav višejezičnosti.
+//   U produkcijskom okruženju s postojećom bazom koristili bismo novu
+//   migraciju umjesto editiranja postojeće.
 // =============================================================================
 
 namespace CodebookService.Data.Migrations;
@@ -27,14 +34,51 @@ namespace CodebookService.Data.Migrations;
 /// <inheritdoc />
 public partial class InitialCreate : Migration
 {
+    // Seed GUIDs — isti kao u DbContext-u, hardkodirani
+    private static readonly Guid LangHrId  = new("b0000000-0000-0000-0000-000000000001");
+    private static readonly Guid LangEnId  = new("b0000000-0000-0000-0000-000000000002");
+    private static readonly Guid GenderMId = new("a1000000-0000-0000-0000-000000000001");
+    private static readonly Guid GenderFId = new("a1000000-0000-0000-0000-000000000002");
+    private static readonly Guid GenderOId = new("a1000000-0000-0000-0000-000000000003");
+    private static readonly DateTime SeedDate = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        // Kreiranje sheme ako ne postoji
         migrationBuilder.EnsureSchema(name: "hr_codebook");
 
         // ------------------------------------------------------------------
+        // Tablica: language
+        // Podržani jezici sustava. Novi jezik = novi redak, bez izmjene sheme.
+        // ------------------------------------------------------------------
+        migrationBuilder.CreateTable(
+            name: "language",
+            schema: "hr_codebook",
+            columns: table => new
+            {
+                Id        = table.Column<Guid>(type: "uuid", nullable: false),
+                Code      = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                Name      = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_language", x => x.Id);
+            });
+
+        migrationBuilder.CreateIndex(
+            name: "IX_language_Code",
+            schema: "hr_codebook",
+            table: "language",
+            column: "Code",
+            unique: true);
+
+        // ------------------------------------------------------------------
         // Tablica: codebook_gender
+        // Nema Name/NameEn — nazivi su u translation tablici.
         // ------------------------------------------------------------------
         migrationBuilder.CreateTable(
             name: "codebook_gender",
@@ -43,8 +87,6 @@ public partial class InitialCreate : Migration
             {
                 Id        = table.Column<Guid>(type: "uuid", nullable: false),
                 Code      = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                Name      = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                NameEn    = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                 IsActive  = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                 Ordinal   = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -74,8 +116,6 @@ public partial class InitialCreate : Migration
             {
                 Id        = table.Column<Guid>(type: "uuid", nullable: false),
                 Code      = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                Name      = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                NameEn    = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                 IsActive  = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                 Ordinal   = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -97,6 +137,7 @@ public partial class InitialCreate : Migration
 
         // ------------------------------------------------------------------
         // Tablica: codebook_county (Županija)
+        // CountryId je logički FK — bez DB constraint-a između šifarnika.
         // ------------------------------------------------------------------
         migrationBuilder.CreateTable(
             name: "codebook_county",
@@ -105,9 +146,7 @@ public partial class InitialCreate : Migration
             {
                 Id        = table.Column<Guid>(type: "uuid", nullable: false),
                 Code      = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                Name      = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                NameEn    = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                CountryId = table.Column<Guid>(type: "uuid", nullable: false),   // logički FK, bez constraint-a
+                CountryId = table.Column<Guid>(type: "uuid", nullable: false),
                 IsActive  = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                 Ordinal   = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -118,7 +157,7 @@ public partial class InitialCreate : Migration
             constraints: table =>
             {
                 table.PrimaryKey("PK_codebook_county", x => x.Id);
-                // Nema ForeignKey prema codebook_country — logička veza, ne DB constraint
+                // Nema ForeignKey → CountryId je logički FK, ne DB constraint
             });
 
         // ------------------------------------------------------------------
@@ -129,17 +168,15 @@ public partial class InitialCreate : Migration
             schema: "hr_codebook",
             columns: table => new
             {
-                Id           = table.Column<Guid>(type: "uuid", nullable: false),
-                Code         = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                Name         = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                NameEn       = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                CountyId     = table.Column<Guid>(type: "uuid", nullable: false),   // logički FK
-                IsActive     = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                Ordinal      = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                CreatedAt    = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                UpdatedAt    = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                CreatedBy    = table.Column<Guid>(type: "uuid", nullable: false),
-                UpdatedBy    = table.Column<Guid>(type: "uuid", nullable: false)
+                Id       = table.Column<Guid>(type: "uuid", nullable: false),
+                Code     = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                CountyId = table.Column<Guid>(type: "uuid", nullable: false),
+                IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                Ordinal  = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
             },
             constraints: table =>
             {
@@ -154,75 +191,125 @@ public partial class InitialCreate : Migration
             schema: "hr_codebook",
             columns: table => new
             {
-                Id               = table.Column<Guid>(type: "uuid", nullable: false),
-                Code             = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                Name             = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                NameEn           = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                MunicipalityId   = table.Column<Guid>(type: "uuid", nullable: false),   // logički FK
-                IsActive         = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                Ordinal          = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                CreatedAt        = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                UpdatedAt        = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                CreatedBy        = table.Column<Guid>(type: "uuid", nullable: false),
-                UpdatedBy        = table.Column<Guid>(type: "uuid", nullable: false)
+                Id             = table.Column<Guid>(type: "uuid", nullable: false),
+                Code           = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                MunicipalityId = table.Column<Guid>(type: "uuid", nullable: false),
+                IsActive       = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                Ordinal        = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                CreatedAt      = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                UpdatedAt      = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                CreatedBy      = table.Column<Guid>(type: "uuid", nullable: false),
+                UpdatedBy      = table.Column<Guid>(type: "uuid", nullable: false)
             },
             constraints: table =>
             {
                 table.PrimaryKey("PK_codebook_settlement", x => x.Id);
             });
 
+        // ------------------------------------------------------------------
+        // Tablica: translation
+        // Generička tablica prijevoda za sve entitete.
+        // LanguageId ima pravi FK constraint (ista shema — dozvoljeno).
+        // ------------------------------------------------------------------
+        migrationBuilder.CreateTable(
+            name: "translation",
+            schema: "hr_codebook",
+            columns: table => new
+            {
+                Id         = table.Column<Guid>(type: "uuid", nullable: false),
+                EntityType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                EntityId   = table.Column<Guid>(type: "uuid", nullable: false),
+                LanguageId = table.Column<Guid>(type: "uuid", nullable: false),
+                FieldName  = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                Value      = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                CreatedAt  = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                UpdatedAt  = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                CreatedBy  = table.Column<Guid>(type: "uuid", nullable: false),
+                UpdatedBy  = table.Column<Guid>(type: "uuid", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_translation", x => x.Id);
+                // FK prema language — pravi DB constraint (ista shema)
+                table.ForeignKey(
+                    name: "FK_translation_language_LanguageId",
+                    column: x => x.LanguageId,
+                    principalSchema: "hr_codebook",
+                    principalTable: "language",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Restrict);
+            });
+
+        // Unique index: jedan prijevod po (entitet, zapis, jezik, polje)
+        migrationBuilder.CreateIndex(
+            name: "IX_translation_EntityType_EntityId_LanguageId_FieldName",
+            schema: "hr_codebook",
+            table: "translation",
+            columns: new[] { "EntityType", "EntityId", "LanguageId", "FieldName" },
+            unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_translation_LanguageId",
+            schema: "hr_codebook",
+            table: "translation",
+            column: "LanguageId");
+
         // ==================================================================
-        // SEED DATA — InsertData() pozivi
-        //
-        // EF Core generira InsertData() za svaki HasData() poziv u DbContext-u.
-        //
-        // Kako funkcionira:
-        //  - Pri prvoj migraciji: INSERT zapisi ako ne postoje
-        //  - Ako se seed promijeni u DbContext: nova migracija generira UPDATE
-        //  - Ako se seed izbriše iz HasData(): nova migracija generira DELETE
-        //
-        // Zato su ID-evi hardkodirani — EF Core ih koristi za praćenje
-        // koji je seed zapis koji, između migracija.
+        // SEED DATA
         // ==================================================================
+
+        // Jezici
+        migrationBuilder.InsertData(
+            schema: "hr_codebook",
+            table: "language",
+            columns: new[] { "Id", "Code", "Name", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" },
+            values: new object[,]
+            {
+                { LangHrId, "hr", "Hrvatski", SeedDate, SeedDate, Guid.Empty, Guid.Empty },
+                { LangEnId, "en", "English",  SeedDate, SeedDate, Guid.Empty, Guid.Empty }
+            });
+
+        // Gender zapisi (samo Code/IsActive/Ordinal — bez Name)
         migrationBuilder.InsertData(
             schema: "hr_codebook",
             table: "codebook_gender",
-            columns: new[] { "Id", "Code", "Name", "NameEn", "IsActive", "Ordinal", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" },
+            columns: new[] { "Id", "Code", "IsActive", "Ordinal", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" },
             values: new object[,]
             {
-                {
-                    new Guid("a1000000-0000-0000-0000-000000000001"),
-                    "M", "Muško", "Male", true, 1,
-                    new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    Guid.Empty, Guid.Empty
-                },
-                {
-                    new Guid("a1000000-0000-0000-0000-000000000002"),
-                    "F", "Žensko", "Female", true, 2,
-                    new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    Guid.Empty, Guid.Empty
-                },
-                {
-                    new Guid("a1000000-0000-0000-0000-000000000003"),
-                    "O", "Ostalo", "Other", true, 3,
-                    new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    Guid.Empty, Guid.Empty
-                }
+                { GenderMId, "M", true, 1, SeedDate, SeedDate, Guid.Empty, Guid.Empty },
+                { GenderFId, "F", true, 2, SeedDate, SeedDate, Guid.Empty, Guid.Empty },
+                { GenderOId, "O", true, 3, SeedDate, SeedDate, Guid.Empty, Guid.Empty }
+            });
+
+        // Prijevodi za Gender
+        // Fallback logika (u servisnom sloju): traženi jezik → hr → Code
+        // Hrvatski prijevod je OBAVEZAN. Engleski i ostali su opcionalni.
+        migrationBuilder.InsertData(
+            schema: "hr_codebook",
+            table: "translation",
+            columns: new[] { "Id", "EntityType", "EntityId", "LanguageId", "FieldName", "Value", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" },
+            values: new object[,]
+            {
+                { new Guid("c0000000-0000-0000-0000-000000000001"), "codebook_gender", GenderMId, LangHrId, "Name", "Muško",   SeedDate, SeedDate, Guid.Empty, Guid.Empty },
+                { new Guid("c0000000-0000-0000-0000-000000000002"), "codebook_gender", GenderMId, LangEnId, "Name", "Male",    SeedDate, SeedDate, Guid.Empty, Guid.Empty },
+                { new Guid("c0000000-0000-0000-0000-000000000003"), "codebook_gender", GenderFId, LangHrId, "Name", "Žensko",  SeedDate, SeedDate, Guid.Empty, Guid.Empty },
+                { new Guid("c0000000-0000-0000-0000-000000000004"), "codebook_gender", GenderFId, LangEnId, "Name", "Female",  SeedDate, SeedDate, Guid.Empty, Guid.Empty },
+                { new Guid("c0000000-0000-0000-0000-000000000005"), "codebook_gender", GenderOId, LangHrId, "Name", "Ostalo",  SeedDate, SeedDate, Guid.Empty, Guid.Empty },
+                { new Guid("c0000000-0000-0000-0000-000000000006"), "codebook_gender", GenderOId, LangEnId, "Name", "Other",   SeedDate, SeedDate, Guid.Empty, Guid.Empty }
             });
     }
 
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        // Down() se poziva pri: dotnet ef database update <PreviousMigration>
-        // Briše sve što je Up() kreirao — u obrnutom redoslijedu.
+        // Down() se poziva pri rollbacku: dotnet ef database update 0
+        // Redoslijed: prvo tablice koje imaju FK-ove, zadnje parent tablice
+        migrationBuilder.DropTable(name: "translation",           schema: "hr_codebook");
         migrationBuilder.DropTable(name: "codebook_gender",       schema: "hr_codebook");
         migrationBuilder.DropTable(name: "codebook_settlement",   schema: "hr_codebook");
         migrationBuilder.DropTable(name: "codebook_municipality", schema: "hr_codebook");
         migrationBuilder.DropTable(name: "codebook_county",       schema: "hr_codebook");
         migrationBuilder.DropTable(name: "codebook_country",      schema: "hr_codebook");
+        migrationBuilder.DropTable(name: "language",              schema: "hr_codebook");
     }
 }
