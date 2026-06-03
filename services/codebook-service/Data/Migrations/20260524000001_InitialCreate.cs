@@ -267,6 +267,7 @@ public partial class InitialCreate : Migration
             schema: "hr_codebook",
             table: "language",
             columns: new[] { "Id", "Code", "Name", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" },
+            columnTypes: new[] { "uuid", "character varying(10)", "character varying(100)", "timestamp with time zone", "timestamp with time zone", "uuid", "uuid" },
             values: new object[,]
             {
                 { LangHrId, "hr", "Hrvatski", SeedDate, SeedDate, Guid.Empty, Guid.Empty },
@@ -278,6 +279,7 @@ public partial class InitialCreate : Migration
             schema: "hr_codebook",
             table: "codebook_gender",
             columns: new[] { "Id", "Code", "IsActive", "Ordinal", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" },
+            columnTypes: new[] { "uuid", "character varying(10)", "boolean", "integer", "timestamp with time zone", "timestamp with time zone", "uuid", "uuid" },
             values: new object[,]
             {
                 { GenderMId, "M", true, 1, SeedDate, SeedDate, Guid.Empty, Guid.Empty },
@@ -292,6 +294,7 @@ public partial class InitialCreate : Migration
             schema: "hr_codebook",
             table: "translation",
             columns: new[] { "Id", "EntityType", "EntityId", "LanguageId", "FieldName", "Value", "CreatedAt", "UpdatedAt", "CreatedBy", "UpdatedBy" },
+            columnTypes: new[] { "uuid", "character varying(100)", "uuid", "uuid", "character varying(100)", "character varying(500)", "timestamp with time zone", "timestamp with time zone", "uuid", "uuid" },
             values: new object[,]
             {
                 { new Guid("c0000000-0000-0000-0000-000000000001"), "codebook_gender", GenderMId, LangHrId, "Name", "Muško",   SeedDate, SeedDate, Guid.Empty, Guid.Empty },
