@@ -13,6 +13,18 @@ Pravila su obavezna osim ako nije eksplicitno drugačije navedeno.
 
 ---
 
+## Arhitekturalne odluke
+- EF Core za standardne CRUD operacije
+- Raw SQL za kompleksne upite i izvještaje
+- ANSI SQL standard gdje god moguće radi portabilnosti
+- Stored procedure se NE koriste
+- Impersonation (Act As) funkcionalnost planirana za identity-service:
+  * Admin može pregledavati sustav "kao" drugi korisnik
+  * Audit log uvijek bilježi stvarnog korisnika + impersoniranog
+  * Implementacija kroz JWT claims: sub (stvarni korisnik), acting_as (impersonirani)
+
+--- 
+
 ## Identitet vs. profil zaposlenika
 
 - **Autentikacijski podaci (lozinka, refresh token, uloge, permisioni) nikad ne idu u `employee-service`.**
@@ -23,7 +35,10 @@ Pravila su obavezna osim ako nije eksplicitno drugačije navedeno.
 ---
 
 ## Baza podataka
-
+- Jedna PostgreSQL instanca, više shema
+- Mogućnost migracije na drugu bazu (SQL Server...) u budućnosti
+- Zbog portabilnosti izbjegavati PostgreSQL-specifične funkcije gdje god moguće
+  
 ### Sheme
 
 Svaki servis koristi zasebnu PostgreSQL shemu:
@@ -77,6 +92,8 @@ Novi zapis se kreira pri svakoj promjeni; prethodni dobiva `ValidTo = DateTime.U
 - API endpointi za šifarnike po defaultu vraćaju samo aktivne zapise; query param `?includeInactive=true` vraća sve.
 - Seed podaci za standardne šifarnike idu kroz **EF Core migracije** (`HasData`) — ne kroz SQL skripte.
 - Sistemski seed zapisi koriste `CreatedBy = Guid.Empty` kao oznaku da ih je kreirao sistem, ne korisnik.
+- Hijerarhija lokacija: Država → Županija → Općina → Naselje
+- Relacije između lokacijskih šifarnika nisu obavezne — pouzdane samo za Hrvatsku inicijalno
 
 ### Raw SQL
 
@@ -198,7 +215,9 @@ Npr. Manager može čitati `employees:org`, ali ne i `employees:contract`.
 
 - **Framework:** React 18 + TypeScript
 - **Build tool:** Vite
-- **UI framework:** Ant Design (antd v5)
+- Ant Design kao UI framework
+- Podrška za svjetlu i tamnu temu (light/dark mode toggle u topbaru)
+- React + TypeScript + Vite
 - **HTTP klijent:** Axios
 - **Routing:** React Router v6
 - **i18n:** i18next + react-i18next
@@ -217,9 +236,17 @@ Npr. Manager može čitati `employees:org`, ali ne i `employees:contract`.
 ---
 
 ## Višejezičnost — Translation sustav
-
 Višejezičnost se implementira kroz generički Translation sustav. **Nikad ne dodavati `Name`, `NameEn`, `NameDe`... kolone** u tablice — to ne skalira.
 
+## Višejezičnost — detalji implementacije
+- Generički Translation sustav kroz Language i Translation tablice (NE kolone NameHr/NameEn)
+- Language tablica: Id, Code (hr, en...), Name (Hrvatski, English...)
+- Translation tablica: Id, EntityType, EntityId, LanguageId, FieldName, Value
+- Hrvatski prijevod je OBAVEZAN za sve unose — bez njega se ne može spremiti
+- Fallback logika: traženi jezik → hrvatski → Code
+- Code kolona je neutralni identifikator, nikad se ne prevodi
+- Frontend i18n: JSON format s hijerarhijskom strukturom po modulima (common, codebook, employee, errors...)
+- Frontend odabir jezika kroz dropdown (combo), ne kroz tipke
 ### Tablice
 
 **`language`** — podržani jezici:
@@ -292,10 +319,3 @@ services/<ime-servisa>/
 - Arhitekturne odluke dokumentovati u `docs/DECISIONS.md` po ADR formatu.
 - `CLAUDE.md` se ažurira samo kada se mijenjaju temeljna pravila projekta.
 
-  
-## Buduće funkcionalnosti
-- Impersonation (Act As): Admin mora moći pregledavati 
-  sustav "kao" drugi korisnik. Audit log uvijek bilježi 
-  stvarnog korisnika + impersoniranog korisnika.
-  Implementira se kroz JWT claims: 'sub' (stvarni), 
-  'acting_as' (impersonirani).
