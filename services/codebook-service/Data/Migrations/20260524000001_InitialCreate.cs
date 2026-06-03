@@ -1,5 +1,7 @@
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using CodebookService.Data;
 
 #nullable disable
 
@@ -32,6 +34,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CodebookService.Data.Migrations;
 
 /// <inheritdoc />
+[DbContext(typeof(CodebookDbContext))]
+[Migration("20260524000001_InitialCreate")]
 public partial class InitialCreate : Migration
 {
     // Seed GUIDs — isti kao u DbContext-u, hardkodirani
