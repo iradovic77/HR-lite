@@ -1,4 +1,8 @@
 {
+  "app": {
+    "name": "HR-lite",
+    "name_short": "HR"
+  },
   "nav": {
     "codebooks": "Šifarnici",
     "gender": "Spol"
@@ -6,7 +10,8 @@
   "topbar": {
     "language": "Jezik",
     "theme_light": "Svjetla tema",
-    "theme_dark": "Tamna tema"
+    "theme_dark": "Tamna tema",
+    "user_role": "Administrator"
   },
   "codebook": {
     "gender": {

@@ -41,7 +41,7 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
 
   const pageTitle = PAGE_TITLES[location.pathname]
     ? t(PAGE_TITLES[location.pathname])
-    : 'HR-lite'
+    : t('app.name')
 
   const menuItems = [
     {
@@ -82,7 +82,7 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
           borderBottom: `1px solid ${token.colorBorderSecondary}`,
         }}>
           <Text strong style={{ fontSize: collapsed ? 14 : 18, color: token.colorPrimary }}>
-            {collapsed ? 'HR' : 'HR-lite'}
+            {collapsed ? t('app.name_short') : t('app.name')}
           </Text>
         </div>
 
@@ -131,7 +131,7 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
             </Tooltip>
 
             {/* Avatar prijavljenog korisnika */}
-            <Tooltip title="Admin">
+            <Tooltip title={t('topbar.user_role')}>
               <Avatar
                 style={{ backgroundColor: token.colorPrimary, cursor: 'pointer' }}
                 size="small"
