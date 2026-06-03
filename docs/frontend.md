@@ -1,50 +1,75 @@
 # Frontend
 
-**Status:** 🔴 Nije početo  
+**Status:** 🟡 U toku  
 **Port:** 3000  
 **Stack:** React 18 + TypeScript + Vite
 
 ## Tehnologije
 
-| Lib | Svrha |
-|-----|-------|
-| React 18 | UI framework |
-| TypeScript | Tipska sigurnost |
-| Vite | Bundler (brži od CRA) |
-| React Router v6 | Klijentski routing |
-| TanStack Query | Server state management |
-| Axios | HTTP klijent |
-| Tailwind CSS | Stilizacija |
+| Lib | Verzija | Svrha |
+|-----|---------|-------|
+| React | 18 | UI framework |
+| TypeScript | 5 | Tipska sigurnost |
+| Vite | 5 | Bundler |
+| Ant Design | 5 | UI komponente |
+| React Router | v6 | Klijentski routing |
+| i18next + react-i18next | 23/14 | Višejezičnost |
+| Axios | 1.7 | HTTP klijent |
+
+## Teme
+
+- Ant Design `ConfigProvider` s `theme.darkAlgorithm` / `theme.defaultAlgorithm`
+- Toggle switch u topbaru (Sun/Moon ikone)
+- Odabrana tema persistirana u `localStorage` pod ključem `hr-lite-theme`
+
+## Višejezičnost
+
+- Jezik se bira kroz **dropdown** u topbaru (ne tipke — skalira za više jezika)
+- Implementacija: i18next + react-i18next
+- Prijevodi u `src/i18n/locales/hr.json` i `en.json`
+- Odabrani jezik persistiran u `localStorage` pod ključem `hr-lite-lang`
+- Default: `hr`
 
 ## Routing struktura
 
 ```
-/login                  — javno
-/dashboard              — zaštićeno
-/employees              — HR, Admin, Manager
-/employees/:id          — HR, Admin, Manager, sam zaposlenik
-/employees/new          — HR, Admin
-/leave                  — svi zaposlenici
-/leave/new              — svi zaposlenici
-/org-chart              — svi zaposlenici
-/admin/users            — Admin
+/                       → redirect na /codebook/gender
+/codebook/gender        → Šifarnik spolova ✅
 ```
 
-## Auth flow
+## Layout
 
-1. Korisnik unosi email/lozinku → `POST /api/identity/auth/login`
-2. Access token + refresh token pohranjeni u memory (access) i httpOnly cookie (refresh)
-3. Axios interceptor automatski refresh-uje access token kad istekne
-4. Logout briše tokene i preusmjerava na `/login`
+```
+┌─────────────────────────────────────────────┐
+│ Sidebar          │ Topbar                    │
+│                  │  Naziv stranice | Lang | 🌙 | Avatar │
+│  HR-lite         ├───────────────────────────┤
+│  > Šifarnici     │                           │
+│    > Spol        │   <Outlet />              │
+│                  │   (sadržaj stranice)       │
+│                  │                           │
+└─────────────────────────────────────────────┘
+```
+
+## API komunikacija
+
+- `src/api/axios.ts` — centralna Axios instanca
+- Request interceptor: automatski dodaje `Authorization: Bearer <token>`
+- Response interceptor: 401 → redirect na `/login`
+- Vite proxy u dev modu: `/api/*` → backend servisi
 
 ## Zadaci
 
-- [ ] Projekt setup (Vite + React + TypeScript)
-- [ ] Tailwind CSS konfiguracija
-- [ ] React Router v6 struktura
-- [ ] Auth context + Axios interceptor
-- [ ] Login stranica
-- [ ] Employee lista (paginacija, pretraga)
-- [ ] Employee detalji
+- [x] Projekt setup (Vite + React + TypeScript)
+- [x] Ant Design + light/dark mode
+- [x] i18n setup (hr, en)
+- [x] Axios instanca s interceptorima
+- [x] MainLayout (sidebar + topbar)
+- [x] Šifarnik spolova — `/codebook/gender` (mock data)
+- [x] Dockerfile + docker-compose integracija
+- [ ] Login stranica + auth context
+- [ ] Refresh token flow
+- [ ] Ostali šifarnici (country, county...)
+- [ ] Employee lista i detalji
 - [ ] Leave request forma
 - [ ] Org chart prikaz

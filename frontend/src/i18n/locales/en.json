@@ -1,0 +1,60 @@
+{
+  "app": {
+    "name": "HR-lite",
+    "name_short": "HR"
+  },
+  "nav": {
+    "codebooks": "Codebooks",
+    "gender": "Gender"
+  },
+  "topbar": {
+    "language": "Language",
+    "theme_light": "Light theme",
+    "theme_dark": "Dark theme",
+    "user_role": "Administrator"
+  },
+  "codebook": {
+    "gender": {
+      "title": "Gender Codebook",
+      "addNew": "Add new",
+      "columns": {
+        "code": "Code",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "ordinal": "Order",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "activate": "Activate"
+      },
+      "modal": {
+        "addTitle": "Add gender",
+        "editTitle": "Edit gender",
+        "code": "Code",
+        "code_hint": "Short code (e.g. M, F, O)",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "ordinal": "Order",
+        "isActive": "Active"
+      },
+      "confirm": {
+        "deactivate": "Are you sure you want to deactivate this record?",
+        "activate": "Are you sure you want to activate this record?"
+      }
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "required": "This field is required"
+  }
+}
