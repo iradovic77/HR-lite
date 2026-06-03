@@ -34,6 +34,20 @@ services:
       postgres:
         condition: service_healthy
 
+  codebook-service:
+    build:
+      context: ./services/codebook-service
+      dockerfile: Dockerfile
+    container_name: hr-codebook
+    ports:
+      - "5006:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hr_db;Username=hr_user;Password=hr_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   # employee-service:
   #   build: ./services/employee-service
   #   container_name: hr-employee
