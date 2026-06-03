@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { ConfigProvider, theme } from 'antd'
+import { App as AntApp, ConfigProvider, theme } from 'antd'
 import hrHR from 'antd/locale/hr_HR'
 import enUS from 'antd/locale/en_US'
 import { useTranslation } from 'react-i18next'
@@ -36,6 +36,7 @@ export default function App() {
         },
       }}
     >
+      <AntApp>
       <BrowserRouter>
         <Routes>
           {/* Redirect s root-a na prvi ekran */}
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/codebook/gender" replace />} />
         </Routes>
       </BrowserRouter>
+      </AntApp>
     </ConfigProvider>
   )
 }
