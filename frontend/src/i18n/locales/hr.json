@@ -1,0 +1,55 @@
+{
+  "nav": {
+    "codebooks": "Šifarnici",
+    "gender": "Spol"
+  },
+  "topbar": {
+    "language": "Jezik",
+    "theme_light": "Svjetla tema",
+    "theme_dark": "Tamna tema"
+  },
+  "codebook": {
+    "gender": {
+      "title": "Šifarnik spolova",
+      "addNew": "Dodaj novi",
+      "columns": {
+        "code": "Kod",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "ordinal": "Redoslijed",
+        "status": "Status",
+        "actions": "Akcije"
+      },
+      "status": {
+        "active": "Aktivan",
+        "inactive": "Neaktivan"
+      },
+      "actions": {
+        "edit": "Uredi",
+        "deactivate": "Deaktiviraj",
+        "activate": "Aktiviraj"
+      },
+      "modal": {
+        "addTitle": "Dodaj spol",
+        "editTitle": "Uredi spol",
+        "code": "Kod",
+        "code_hint": "Kratka šifra (npr. M, F, O)",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "ordinal": "Redoslijed",
+        "isActive": "Aktivan"
+      },
+      "confirm": {
+        "deactivate": "Sigurno želiš deaktivirati ovaj zapis?",
+        "activate": "Sigurno želiš aktivirati ovaj zapis?"
+      }
+    }
+  },
+  "common": {
+    "save": "Spremi",
+    "cancel": "Otkaži",
+    "yes": "Da",
+    "no": "Ne",
+    "required": "Ovo polje je obavezno"
+  }
+}

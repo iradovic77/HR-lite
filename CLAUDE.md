@@ -194,6 +194,28 @@ Npr. Manager može čitati `employees:org`, ali ne i `employees:contract`.
 
 ---
 
+## Frontend
+
+- **Framework:** React 18 + TypeScript
+- **Build tool:** Vite
+- **UI framework:** Ant Design (antd v5)
+- **HTTP klijent:** Axios
+- **Routing:** React Router v6
+- **i18n:** i18next + react-i18next
+
+### Teme (light/dark mode)
+- Ant Design `ConfigProvider` s `theme.darkAlgorithm` / `theme.defaultAlgorithm`
+- Toggle u topbaru — stanje persistirano u `localStorage`
+
+### Višejezičnost (UI)
+- Jezik se bira kroz **dropdown (combo)**, ne kroz tipke
+- Razlog: jezici će se dodavati naknadno — dropdown skalira bolje od tipki
+- Implementacija: i18next + react-i18next
+- Početni jezici: `hr` (default), `en`
+- Odabrani jezik persistiran u `localStorage`
+
+---
+
 ## Višejezičnost — Translation sustav
 
 Višejezičnost se implementira kroz generički Translation sustav. **Nikad ne dodavati `Name`, `NameEn`, `NameDe`... kolone** u tablice — to ne skalira.
