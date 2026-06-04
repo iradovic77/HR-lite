@@ -64,7 +64,7 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
   ]
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh' }}>
       {/* ── Sidebar ─────────────────────────────────────── */}
       <Sider
         collapsible
@@ -143,7 +143,7 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
         </Header>
 
         {/* ── Glavni sadržaj ──────────────────────────────── */}
-        <Content style={{ margin: 24 }}>
+        <Content style={{ margin: 24, overflow: 'hidden' }}>
           <Outlet />
         </Content>
       </Layout>

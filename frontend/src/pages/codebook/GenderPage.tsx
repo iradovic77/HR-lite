@@ -2,13 +2,12 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Table, Button, Tag, Space, Modal, Form, Input,
-  InputNumber, Switch, Popconfirm, Typography, Card, App,
+  InputNumber, Switch, Popconfirm, App,
 } from 'antd'
 import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import { genderApi, type GenderResponse, type CreateGenderRequest } from '@/api/codebook'
-
-const { Title } = Typography
+import CodebookLayout, { TABLE_SCROLL_Y } from '@/layouts/CodebookLayout'
 
 type FormValues = Omit<GenderResponse, 'id'>
 
@@ -16,10 +15,10 @@ export default function GenderPage() {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const [data, setData]           = useState<GenderResponse[]>([])
-  const [loading, setLoading]     = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [saving, setSaving]       = useState(false)
+  const [data, setData]               = useState<GenderResponse[]>([])
+  const [loading, setLoading]         = useState(false)
+  const [modalOpen, setModalOpen]     = useState(false)
+  const [saving, setSaving]           = useState(false)
   const [editingItem, setEditingItem] = useState<GenderResponse | null>(null)
   const [form] = Form.useForm<FormValues>()
 
@@ -28,7 +27,7 @@ export default function GenderPage() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const res = await genderApi.getAll(true) // uključi i neaktivne
+      const res = await genderApi.getAll(true)
       setData(res.data)
     } catch {
       message.error('Greška pri dohvatu podataka')
@@ -163,16 +162,14 @@ export default function GenderPage() {
   // ── Render ──────────────────────────────────────────────────────────
 
   return (
-    <Card>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0 }}>
-          {t('codebook.gender.title')}
-        </Title>
+    <CodebookLayout
+      title={t('codebook.gender.title')}
+      extra={
         <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
           {t('codebook.gender.addNew')}
         </Button>
-      </div>
-
+      }
+    >
       <Table
         columns={columns}
         dataSource={data}
@@ -180,6 +177,7 @@ export default function GenderPage() {
         size="small"
         loading={loading}
         pagination={{ pageSize: 20, showSizeChanger: false }}
+        scroll={{ y: TABLE_SCROLL_Y }}
       />
 
       <Modal
@@ -225,6 +223,6 @@ export default function GenderPage() {
           </Form.Item>
         </Form>
       </Modal>
-    </Card>
+    </CodebookLayout>
   )
 }

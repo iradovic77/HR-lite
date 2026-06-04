@@ -22,7 +22,7 @@ export interface CreateGenderRequest {
 export interface UpdateGenderRequest {
   code: string
   nameHr: string
-  nameEn?: string
+  nameEn?: string | null
   ordinal: number
   isActive: boolean
 }
