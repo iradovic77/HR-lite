@@ -35,3 +35,6 @@ docker-compose.override.yml
 ## Frontend
 node_modules/
 frontend/node_modules/
+
+## Claude Code
+.claude/settings.local.json
