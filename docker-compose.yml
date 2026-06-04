@@ -92,6 +92,18 @@ services:
   #   depends_on:
   #     - identity-service
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: hr-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@hr-lite.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   frontend:
     build:
       context: ./frontend
