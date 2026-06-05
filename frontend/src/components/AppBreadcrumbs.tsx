@@ -1,5 +1,5 @@
 import { Breadcrumb } from 'antd'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 interface RouteEntry {
@@ -31,11 +31,15 @@ export default function AppBreadcrumbs() {
   const crumbs = buildCrumbs(pathname)
   if (crumbs.length === 0) return null
 
+  const lastIndex = crumbs.length - 1
+
   return (
     <Breadcrumb
       separator="›"
-      items={crumbs.map(path => ({
-        title: t(ROUTE_CONFIG[path].labelKey),
+      items={crumbs.map((path, index) => ({
+        title: index === lastIndex
+          ? t(ROUTE_CONFIG[path].labelKey)
+          : <Link to={path}>{t(ROUTE_CONFIG[path].labelKey)}</Link>,
       }))}
       style={{ fontSize: 12, lineHeight: '18px' }}
     />
