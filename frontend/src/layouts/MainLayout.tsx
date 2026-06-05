@@ -143,7 +143,7 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
         </Header>
 
         {/* ── Glavni sadržaj ──────────────────────────────── */}
-        <Content style={{ margin: 24, overflow: 'hidden' }}>
+        <Content style={{ margin: 24, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Outlet />
         </Content>
       </Layout>

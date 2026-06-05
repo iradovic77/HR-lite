@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Table, Button, Tag, Space, Modal, Form, Input,
-  InputNumber, Switch, Popconfirm, App,
+  InputNumber, Switch, Popconfirm, App, Pagination,
 } from 'antd'
 import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import { genderApi, type GenderResponse, type CreateGenderRequest } from '@/api/codebook'
-import CodebookLayout, { TABLE_SCROLL_Y } from '@/layouts/CodebookLayout'
+import CodebookLayout from '@/layouts/CodebookLayout'
 
+const PAGE_SIZE = 20
 type FormValues = Omit<GenderResponse, 'id'>
 
 export default function GenderPage() {
@@ -17,6 +18,7 @@ export default function GenderPage() {
 
   const [data, setData]               = useState<GenderResponse[]>([])
   const [loading, setLoading]         = useState(false)
+  const [page, setPage]               = useState(1)
   const [modalOpen, setModalOpen]     = useState(false)
   const [saving, setSaving]           = useState(false)
   const [editingItem, setEditingItem] = useState<GenderResponse | null>(null)
@@ -29,6 +31,7 @@ export default function GenderPage() {
     try {
       const res = await genderApi.getAll(true)
       setData(res.data)
+      setPage(1)
     } catch {
       message.error('Greška pri dohvatu podataka')
     } finally {
@@ -37,6 +40,8 @@ export default function GenderPage() {
   }
 
   useEffect(() => { fetchData() }, [])
+
+  const paginatedData = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   // ── Handlers ────────────────────────────────────────────────────────
 
@@ -125,7 +130,7 @@ export default function GenderPage() {
     {
       title: t('codebook.gender.columns.actions'),
       key: 'actions',
-      width: 180,
+      width: 200,
       render: (_, record) => (
         <Space>
           <Button
@@ -169,15 +174,24 @@ export default function GenderPage() {
           {t('codebook.gender.addNew')}
         </Button>
       }
+      pagination={
+        <Pagination
+          current={page}
+          total={data.length}
+          pageSize={PAGE_SIZE}
+          onChange={setPage}
+          showTotal={(total) => `Ukupno: ${total}`}
+          size="small"
+        />
+      }
     >
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={paginatedData}
         rowKey="id"
         size="small"
         loading={loading}
-        pagination={{ pageSize: 20, showSizeChanger: false }}
-        scroll={{ y: TABLE_SCROLL_Y }}
+        pagination={false}
       />
 
       <Modal

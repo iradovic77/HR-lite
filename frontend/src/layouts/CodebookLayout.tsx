@@ -3,33 +3,30 @@ import { Typography, theme as antTheme } from 'antd'
 
 const { Title } = Typography
 
-/**
- * Vertikalni offset koji konzumiraju svi "chrome" elementi iznad tijela tablice:
- * MainLayout header(64) + Content margin(48) + CodebookLayout padding(40) +
- * toolbar(38) + tablica header(39) + paginacija(56) + buffer(15)
- */
-export const TABLE_SCROLL_Y = 'calc(100vh - 300px)'
-
 interface CodebookLayoutProps {
   title: string
   extra?: ReactNode
+  pagination?: ReactNode
   children: ReactNode
 }
 
-export default function CodebookLayout({ title, extra, children }: CodebookLayoutProps) {
+export default function CodebookLayout({ title, extra, pagination, children }: CodebookLayoutProps) {
   const { token } = antTheme.useToken()
 
   return (
     <div
       style={{
-        height: '100%',
+        flex: 1,
         display: 'flex',
         flexDirection: 'column',
         background: token.colorBgContainer,
         borderRadius: token.borderRadiusLG,
-        padding: '16px 24px 24px',
+        padding: '16px 24px 16px',
+        overflow: 'hidden',
+        minHeight: 0,
       }}
     >
+      {/* Toolbar */}
       <div
         style={{
           display: 'flex',
@@ -45,7 +42,25 @@ export default function CodebookLayout({ title, extra, children }: CodebookLayou
         {extra}
       </div>
 
-      {children}
+      {/* Tablica — skrola samo kad sadržaj prelazi raspoloživi prostor */}
+      <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+        {children}
+      </div>
+
+      {/* Paginacija — uvijek fiksirana na dnu */}
+      {pagination && (
+        <div
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            paddingTop: 12,
+            borderTop: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          {pagination}
+        </div>
+      )}
     </div>
   )
 }
