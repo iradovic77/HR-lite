@@ -46,4 +46,7 @@ export const genderApi = {
 
   toggleActive: (id: string) =>
     api.patch<GenderResponse>(`${BASE}/${id}/toggle-active`),
+
+  deleteById: (id: string) =>
+    api.delete(`${BASE}/${id}`),
 }

@@ -10,4 +10,6 @@ public interface IGenderRepository
     Task<Gender>                      CreateAsync(Gender gender);
     Task<Gender?>                     GetEntityByIdAsync(Guid id);
     Task                              SaveChangesAsync();
+    Task<bool>                        HasReferencesAsync(Guid id);
+    Task                              DeleteAsync(Gender gender);
 }

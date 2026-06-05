@@ -9,4 +9,5 @@ public interface IGenderService
     Task<GenderResponse>              CreateAsync(CreateGenderRequest request);
     Task<GenderResponse?>             UpdateAsync(Guid id, UpdateGenderRequest request);
     Task<GenderResponse?>             ToggleActiveAsync(Guid id);
+    Task<DeleteResult>                DeleteAsync(Guid id);
 }

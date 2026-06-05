@@ -5,7 +5,7 @@ import {
   InputNumber, Switch, Popconfirm, App, Pagination,
 } from 'antd'
 import AppModal from '@/components/AppModal'
-import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import { genderApi, type GenderResponse, type CreateGenderRequest } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
@@ -89,6 +89,19 @@ export default function GenderPage() {
     }
   }
 
+  const handleDelete = async (item: GenderResponse) => {
+    try {
+      await genderApi.deleteById(item.id)
+      message.success('Zapis obrisan')
+      fetchData()
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      message.error(status === 409
+        ? t('common.error_in_use')
+        : t('common.error_delete'))
+    }
+  }
+
   // ── Kolone tablice ──────────────────────────────────────────────────
 
   const columns: ColumnsType<GenderResponse> = [
@@ -158,6 +171,19 @@ export default function GenderPage() {
               {t(record.isActive
                 ? 'codebook.gender.actions.deactivate'
                 : 'codebook.gender.actions.activate')}
+            </Button>
+          </Popconfirm>
+
+          <Popconfirm
+            title={t('codebook.gender.confirm.delete')}
+            description={t('codebook.gender.confirm.delete_description')}
+            onConfirm={() => handleDelete(record)}
+            okText={t('codebook.gender.confirm.delete_ok')}
+            okType="danger"
+            cancelText={t('common.no')}
+          >
+            <Button type="text" icon={<DeleteOutlined />} size="small" danger>
+              {t('codebook.gender.actions.delete')}
             </Button>
           </Popconfirm>
         </Space>

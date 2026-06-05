@@ -64,4 +64,22 @@ public class GenderController : ControllerBase
         var result = await _service.ToggleActiveAsync(id);
         return result is null ? NotFound() : Ok(result);
     }
+
+    /// <summary>
+    /// Fizički briše spol i sve njegove prijevode.
+    /// Vraća 409 Conflict ako zapis ima FK reference u drugim dijelovima sustava.
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _service.DeleteAsync(id);
+
+        if (!result.Found)        return NotFound();
+        if (result.HasReferences) return Conflict(new { message = "Zapis se ne može obrisati jer se koristi u drugim dijelovima sustava." });
+
+        return NoContent();
+    }
 }

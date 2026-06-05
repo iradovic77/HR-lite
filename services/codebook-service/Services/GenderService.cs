@@ -75,6 +75,18 @@ public class GenderService : IGenderService
         return await _repo.GetByIdAsync(id);
     }
 
+    public async Task<DeleteResult> DeleteAsync(Guid id)
+    {
+        var gender = await _repo.GetEntityByIdAsync(id);
+        if (gender is null) return new DeleteResult(Found: false, HasReferences: false);
+
+        if (await _repo.HasReferencesAsync(id))
+            return new DeleteResult(Found: true, HasReferences: true);
+
+        await _repo.DeleteAsync(gender);
+        return new DeleteResult(Found: true, HasReferences: false);
+    }
+
     // ── Privatne metode ─────────────────────────────────────────────────
 
     /// <summary>

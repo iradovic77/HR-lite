@@ -32,7 +32,8 @@
       "actions": {
         "edit": "Uredi",
         "deactivate": "Deaktiviraj",
-        "activate": "Aktiviraj"
+        "activate": "Aktiviraj",
+        "delete": "Obriši"
       },
       "modal": {
         "addTitle": "Dodaj spol",
@@ -46,7 +47,10 @@
       },
       "confirm": {
         "deactivate": "Sigurno želiš deaktivirati ovaj zapis?",
-        "activate": "Sigurno želiš aktivirati ovaj zapis?"
+        "activate": "Sigurno želiš aktivirati ovaj zapis?",
+        "delete": "Sigurno želiš obrisati ovaj zapis?",
+        "delete_description": "Ova akcija je nepovratna!",
+        "delete_ok": "Obriši"
       }
     }
   },
@@ -55,6 +59,8 @@
     "cancel": "Otkaži",
     "yes": "Da",
     "no": "Ne",
-    "required": "Ovo polje je obavezno"
+    "required": "Ovo polje je obavezno",
+    "error_in_use": "Zapis nije moguće obrisati jer se koristi u sustavu.",
+    "error_delete": "Greška pri brisanju zapisa."
   }
 }

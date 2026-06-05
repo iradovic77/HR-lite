@@ -32,7 +32,8 @@
       "actions": {
         "edit": "Edit",
         "deactivate": "Deactivate",
-        "activate": "Activate"
+        "activate": "Activate",
+        "delete": "Delete"
       },
       "modal": {
         "addTitle": "Add gender",
@@ -46,7 +47,10 @@
       },
       "confirm": {
         "deactivate": "Are you sure you want to deactivate this record?",
-        "activate": "Are you sure you want to activate this record?"
+        "activate": "Are you sure you want to activate this record?",
+        "delete": "Are you sure you want to delete this record?",
+        "delete_description": "This action is irreversible!",
+        "delete_ok": "Delete"
       }
     }
   },
@@ -55,6 +59,8 @@
     "cancel": "Cancel",
     "yes": "Yes",
     "no": "No",
-    "required": "This field is required"
+    "required": "This field is required",
+    "error_in_use": "This record cannot be deleted because it is used elsewhere in the system.",
+    "error_delete": "An error occurred while deleting the record."
   }
 }
