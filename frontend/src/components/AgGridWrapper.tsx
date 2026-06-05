@@ -13,7 +13,6 @@ import { theme as antTheme, Pagination, Button, Space } from 'antd'
 import { DownloadOutlined, FileExcelOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import * as XLSX from 'xlsx'
-import { useTheme } from '@/context/ThemeContext'
 import { AG_GRID_LOCALE_HR, AG_GRID_LOCALE_EN } from '@/i18n/agGridLocales'
 
 export interface AgGridWrapperProps<T extends object> {
@@ -34,8 +33,8 @@ export default function AgGridWrapper<T extends object>({
   getRowStyle,
 }: AgGridWrapperProps<T>) {
   const gridRef = useRef<AgGridReact<T>>(null)
-  const { isDark } = useTheme()
   const { token } = antTheme.useToken()
+  const isDark = token.colorBgBase === '#000000'
   const { i18n } = useTranslation()
 
   const [currentPage, setCurrentPage] = useState(1)
