@@ -18,6 +18,7 @@ import {
   MoonOutlined,
   SunOutlined,
 } from '@ant-design/icons'
+import AppBreadcrumbs from '@/components/AppBreadcrumbs'
 
 const { Sider, Header, Content } = Layout
 const { Text } = Typography
@@ -27,7 +28,7 @@ interface MainLayoutProps {
   onThemeToggle: (dark: boolean) => void
 }
 
-// Navigacijska mapa: putanja → naslov stranice
+// Putanja → i18n ključ naslova stranice
 const PAGE_TITLES: Record<string, string> = {
   '/codebook/gender': 'codebook.gender.title',
 }
@@ -102,12 +103,17 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
           background: token.colorBgContainer,
           borderBottom: `1px solid ${token.colorBorderSecondary}`,
           padding: '0 24px',
+          height: 'auto',
+          lineHeight: 'normal',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          {/* Naziv trenutne stranice */}
-          <Text strong style={{ fontSize: 16 }}>{pageTitle}</Text>
+          {/* Lijeva strana: naslov + breadcrumbs */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '10px 0' }}>
+            <Text strong style={{ fontSize: 16, lineHeight: '22px' }}>{pageTitle}</Text>
+            <AppBreadcrumbs />
+          </div>
 
           {/* Desni dio topbara */}
           <Space size="middle">

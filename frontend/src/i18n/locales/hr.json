@@ -54,6 +54,10 @@
       }
     }
   },
+  "breadcrumbs": {
+    "codebooks": "Šifarnici",
+    "gender": "Spolovi"
+  },
   "common": {
     "save": "Spremi",
     "cancel": "Otkaži",

@@ -54,6 +54,10 @@
       }
     }
   },
+  "breadcrumbs": {
+    "codebooks": "Codebooks",
+    "gender": "Genders"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
