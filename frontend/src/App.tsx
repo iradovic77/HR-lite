@@ -6,13 +6,16 @@ import enUS from 'antd/locale/en_US'
 import { useTranslation } from 'react-i18next'
 import MainLayout from '@/layouts/MainLayout'
 import GenderPage from '@/pages/codebook/GenderPage'
+import CountryPage from '@/pages/codebook/CountryPage'
+import CountyPage from '@/pages/codebook/CountyPage'
+import MunicipalityPage from '@/pages/codebook/MunicipalityPage'
+import SettlementPage from '@/pages/codebook/SettlementPage'
 
 const STORAGE_KEY = 'hr-lite-theme'
 
 export default function App() {
   const { i18n } = useTranslation()
 
-  // Light/dark mode — učitaj iz localStorage
   const [isDark, setIsDark] = useState<boolean>(
     () => localStorage.getItem(STORAGE_KEY) === 'dark'
   )
@@ -22,7 +25,6 @@ export default function App() {
     localStorage.setItem(STORAGE_KEY, dark ? 'dark' : 'light')
   }
 
-  // Ant Design lokalizacija ovisi o odabranom jeziku
   const antLocale = i18n.language === 'hr' ? hrHR : enUS
 
   return (
@@ -39,20 +41,21 @@ export default function App() {
       <AntApp>
       <BrowserRouter>
         <Routes>
-          {/* Redirect s root-a na prvi ekran */}
           <Route path="/" element={<Navigate to="/codebook/gender" replace />} />
 
-          {/* Zaštićene rute unutar MainLayout-a */}
           <Route
             path="/"
             element={
               <MainLayout isDark={isDark} onThemeToggle={handleThemeToggle} />
             }
           >
-            <Route path="codebook/gender" element={<GenderPage />} />
+            <Route path="codebook/gender"       element={<GenderPage />} />
+            <Route path="codebook/country"      element={<CountryPage />} />
+            <Route path="codebook/county"       element={<CountyPage />} />
+            <Route path="codebook/municipality" element={<MunicipalityPage />} />
+            <Route path="codebook/city"         element={<SettlementPage />} />
           </Route>
 
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/codebook/gender" replace />} />
         </Routes>
       </BrowserRouter>

@@ -7,14 +7,13 @@ interface RouteEntry {
   parent?: string
 }
 
-/**
- * Centralna mapa ruta → breadcrumb konfiguracija.
- * Za svaku novu stranicu dodaj ovdje entry s odgovarajućim i18n ključem i parent rutom.
- * Primjer za dublje rute: { labelKey: 'breadcrumbs.employee_edit', parent: '/employees' }
- */
 export const ROUTE_CONFIG: Record<string, RouteEntry> = {
-  '/codebook':        { labelKey: 'breadcrumbs.codebooks' },
-  '/codebook/gender': { labelKey: 'breadcrumbs.gender', parent: '/codebook' },
+  '/codebook':              { labelKey: 'breadcrumbs.codebooks' },
+  '/codebook/gender':       { labelKey: 'breadcrumbs.gender',       parent: '/codebook' },
+  '/codebook/country':      { labelKey: 'breadcrumbs.country',      parent: '/codebook' },
+  '/codebook/county':       { labelKey: 'breadcrumbs.county',       parent: '/codebook' },
+  '/codebook/municipality': { labelKey: 'breadcrumbs.municipality', parent: '/codebook' },
+  '/codebook/city':         { labelKey: 'breadcrumbs.city',         parent: '/codebook' },
 }
 
 function buildCrumbs(path: string): string[] {

@@ -279,6 +279,7 @@ public class CodebookDbContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Ordinal).HasDefaultValue(0);
+            entity.Property(e => e.CountryId).IsRequired(false);
         });
     }
 
@@ -291,6 +292,7 @@ public class CodebookDbContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Ordinal).HasDefaultValue(0);
+            entity.Property(e => e.CountyId).IsRequired(false);
         });
     }
 
@@ -303,6 +305,7 @@ public class CodebookDbContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Ordinal).HasDefaultValue(0);
+            entity.Property(e => e.MunicipalityId).IsRequired(false);
         });
     }
 }

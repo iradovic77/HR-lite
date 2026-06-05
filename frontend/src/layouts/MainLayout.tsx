@@ -15,6 +15,10 @@ import {
 import {
   BookOutlined,
   ManOutlined,
+  GlobalOutlined,
+  ApartmentOutlined,
+  EnvironmentOutlined,
+  HomeOutlined,
   MoonOutlined,
   SunOutlined,
 } from '@ant-design/icons'
@@ -28,9 +32,12 @@ interface MainLayoutProps {
   onThemeToggle: (dark: boolean) => void
 }
 
-// Putanja → i18n ključ naslova stranice
 const PAGE_TITLES: Record<string, string> = {
-  '/codebook/gender': 'codebook.gender.title',
+  '/codebook/gender':       'codebook.gender.title',
+  '/codebook/country':      'codebook.country.title',
+  '/codebook/county':       'codebook.county.title',
+  '/codebook/municipality': 'codebook.municipality.title',
+  '/codebook/city':         'codebook.city.title',
 }
 
 export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
@@ -54,6 +61,26 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
           key: '/codebook/gender',
           icon: <ManOutlined />,
           label: t('nav.gender'),
+        },
+        {
+          key: '/codebook/country',
+          icon: <GlobalOutlined />,
+          label: t('nav.country'),
+        },
+        {
+          key: '/codebook/county',
+          icon: <ApartmentOutlined />,
+          label: t('nav.county'),
+        },
+        {
+          key: '/codebook/municipality',
+          icon: <EnvironmentOutlined />,
+          label: t('nav.municipality'),
+        },
+        {
+          key: '/codebook/city',
+          icon: <HomeOutlined />,
+          label: t('nav.city'),
         },
       ],
     },

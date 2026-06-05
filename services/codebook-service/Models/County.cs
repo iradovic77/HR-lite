@@ -11,5 +11,5 @@ public class County : CodebookBase
     /// Logički FK prema tablici codebook_country.
     /// Nema DB foreign key constraint — veza se provodi na aplikativnom nivou.
     /// </summary>
-    public Guid CountryId { get; set; }
+    public Guid? CountryId { get; set; }
 }

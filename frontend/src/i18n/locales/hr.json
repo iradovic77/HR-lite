@@ -5,7 +5,11 @@
   },
   "nav": {
     "codebooks": "Šifarnici",
-    "gender": "Spol"
+    "gender": "Spol",
+    "country": "Država",
+    "county": "Županija",
+    "municipality": "Općina",
+    "city": "Grad"
   },
   "topbar": {
     "language": "Jezik",
@@ -52,11 +56,168 @@
         "delete_description": "Ova akcija je nepovratna!",
         "delete_ok": "Obriši"
       }
+    },
+    "country": {
+      "title": "Šifarnik država",
+      "addNew": "Dodaj novu",
+      "columns": {
+        "code": "Kod",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "ordinal": "Redoslijed",
+        "status": "Status",
+        "actions": "Akcije"
+      },
+      "status": { "active": "Aktivan", "inactive": "Neaktivan" },
+      "actions": {
+        "edit": "Uredi",
+        "deactivate": "Deaktiviraj",
+        "activate": "Aktiviraj",
+        "delete": "Obriši"
+      },
+      "modal": {
+        "addTitle": "Dodaj državu",
+        "editTitle": "Uredi državu",
+        "code": "ISO kod",
+        "code_hint": "ISO 3166-1 alpha-2 (npr. HR, BA, RS)",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "ordinal": "Redoslijed",
+        "isActive": "Aktivan"
+      },
+      "confirm": {
+        "deactivate": "Sigurno želiš deaktivirati ovaj zapis?",
+        "activate": "Sigurno želiš aktivirati ovaj zapis?",
+        "delete": "Sigurno želiš obrisati ovaj zapis?",
+        "delete_description": "Ova akcija je nepovratna!",
+        "delete_ok": "Obriši"
+      }
+    },
+    "county": {
+      "title": "Šifarnik županija",
+      "addNew": "Dodaj novu",
+      "filter_country": "Filtriraj po državi",
+      "columns": {
+        "code": "Kod",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "country": "Država",
+        "ordinal": "Redoslijed",
+        "status": "Status",
+        "actions": "Akcije"
+      },
+      "status": { "active": "Aktivan", "inactive": "Neaktivan" },
+      "actions": {
+        "edit": "Uredi",
+        "deactivate": "Deaktiviraj",
+        "activate": "Aktiviraj",
+        "delete": "Obriši"
+      },
+      "modal": {
+        "addTitle": "Dodaj županiju",
+        "editTitle": "Uredi županiju",
+        "code": "Kod",
+        "code_hint": "Šifra županije",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "country": "Država",
+        "ordinal": "Redoslijed",
+        "isActive": "Aktivan"
+      },
+      "confirm": {
+        "deactivate": "Sigurno želiš deaktivirati ovaj zapis?",
+        "activate": "Sigurno želiš aktivirati ovaj zapis?",
+        "delete": "Sigurno želiš obrisati ovaj zapis?",
+        "delete_description": "Ova akcija je nepovratna!",
+        "delete_ok": "Obriši"
+      }
+    },
+    "municipality": {
+      "title": "Šifarnik općina",
+      "addNew": "Dodaj novu",
+      "filter_county": "Filtriraj po županiji",
+      "columns": {
+        "code": "Kod",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "county": "Županija",
+        "ordinal": "Redoslijed",
+        "status": "Status",
+        "actions": "Akcije"
+      },
+      "status": { "active": "Aktivan", "inactive": "Neaktivan" },
+      "actions": {
+        "edit": "Uredi",
+        "deactivate": "Deaktiviraj",
+        "activate": "Aktiviraj",
+        "delete": "Obriši"
+      },
+      "modal": {
+        "addTitle": "Dodaj općinu",
+        "editTitle": "Uredi općinu",
+        "code": "Kod",
+        "code_hint": "Šifra općine",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "county": "Županija",
+        "ordinal": "Redoslijed",
+        "isActive": "Aktivan"
+      },
+      "confirm": {
+        "deactivate": "Sigurno želiš deaktivirati ovaj zapis?",
+        "activate": "Sigurno želiš aktivirati ovaj zapis?",
+        "delete": "Sigurno želiš obrisati ovaj zapis?",
+        "delete_description": "Ova akcija je nepovratna!",
+        "delete_ok": "Obriši"
+      }
+    },
+    "city": {
+      "title": "Šifarnik gradova",
+      "addNew": "Dodaj novi",
+      "filter_municipality": "Filtriraj po općini",
+      "columns": {
+        "code": "Kod",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "municipality": "Općina",
+        "ordinal": "Redoslijed",
+        "status": "Status",
+        "actions": "Akcije"
+      },
+      "status": { "active": "Aktivan", "inactive": "Neaktivan" },
+      "actions": {
+        "edit": "Uredi",
+        "deactivate": "Deaktiviraj",
+        "activate": "Aktiviraj",
+        "delete": "Obriši"
+      },
+      "modal": {
+        "addTitle": "Dodaj grad",
+        "editTitle": "Uredi grad",
+        "code": "Kod",
+        "code_hint": "Šifra grada/naselja",
+        "nameHr": "Naziv (HR)",
+        "nameEn": "Naziv (EN)",
+        "municipality": "Općina",
+        "ordinal": "Redoslijed",
+        "isActive": "Aktivan"
+      },
+      "confirm": {
+        "deactivate": "Sigurno želiš deaktivirati ovaj zapis?",
+        "activate": "Sigurno želiš aktivirati ovaj zapis?",
+        "delete": "Sigurno želiš obrisati ovaj zapis?",
+        "delete_description": "Ova akcija je nepovratna!",
+        "delete_ok": "Obriši"
+      }
     }
   },
   "breadcrumbs": {
     "codebooks": "Šifarnici",
-    "gender": "Spolovi"
+    "gender": "Spolovi",
+    "country": "Države",
+    "county": "Županije",
+    "municipality": "Općine",
+    "city": "Gradovi"
   },
   "common": {
     "save": "Spremi",

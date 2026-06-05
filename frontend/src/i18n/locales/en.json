@@ -5,7 +5,11 @@
   },
   "nav": {
     "codebooks": "Codebooks",
-    "gender": "Gender"
+    "gender": "Gender",
+    "country": "Country",
+    "county": "County",
+    "municipality": "Municipality",
+    "city": "City"
   },
   "topbar": {
     "language": "Language",
@@ -52,11 +56,168 @@
         "delete_description": "This action is irreversible!",
         "delete_ok": "Delete"
       }
+    },
+    "country": {
+      "title": "Country Codebook",
+      "addNew": "Add new",
+      "columns": {
+        "code": "Code",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "ordinal": "Order",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": { "active": "Active", "inactive": "Inactive" },
+      "actions": {
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "delete": "Delete"
+      },
+      "modal": {
+        "addTitle": "Add country",
+        "editTitle": "Edit country",
+        "code": "ISO Code",
+        "code_hint": "ISO 3166-1 alpha-2 (e.g. HR, BA, RS)",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "ordinal": "Order",
+        "isActive": "Active"
+      },
+      "confirm": {
+        "deactivate": "Are you sure you want to deactivate this record?",
+        "activate": "Are you sure you want to activate this record?",
+        "delete": "Are you sure you want to delete this record?",
+        "delete_description": "This action is irreversible!",
+        "delete_ok": "Delete"
+      }
+    },
+    "county": {
+      "title": "County Codebook",
+      "addNew": "Add new",
+      "filter_country": "Filter by country",
+      "columns": {
+        "code": "Code",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "country": "Country",
+        "ordinal": "Order",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": { "active": "Active", "inactive": "Inactive" },
+      "actions": {
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "delete": "Delete"
+      },
+      "modal": {
+        "addTitle": "Add county",
+        "editTitle": "Edit county",
+        "code": "Code",
+        "code_hint": "County code",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "country": "Country",
+        "ordinal": "Order",
+        "isActive": "Active"
+      },
+      "confirm": {
+        "deactivate": "Are you sure you want to deactivate this record?",
+        "activate": "Are you sure you want to activate this record?",
+        "delete": "Are you sure you want to delete this record?",
+        "delete_description": "This action is irreversible!",
+        "delete_ok": "Delete"
+      }
+    },
+    "municipality": {
+      "title": "Municipality Codebook",
+      "addNew": "Add new",
+      "filter_county": "Filter by county",
+      "columns": {
+        "code": "Code",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "county": "County",
+        "ordinal": "Order",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": { "active": "Active", "inactive": "Inactive" },
+      "actions": {
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "delete": "Delete"
+      },
+      "modal": {
+        "addTitle": "Add municipality",
+        "editTitle": "Edit municipality",
+        "code": "Code",
+        "code_hint": "Municipality code",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "county": "County",
+        "ordinal": "Order",
+        "isActive": "Active"
+      },
+      "confirm": {
+        "deactivate": "Are you sure you want to deactivate this record?",
+        "activate": "Are you sure you want to activate this record?",
+        "delete": "Are you sure you want to delete this record?",
+        "delete_description": "This action is irreversible!",
+        "delete_ok": "Delete"
+      }
+    },
+    "city": {
+      "title": "City Codebook",
+      "addNew": "Add new",
+      "filter_municipality": "Filter by municipality",
+      "columns": {
+        "code": "Code",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "municipality": "Municipality",
+        "ordinal": "Order",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": { "active": "Active", "inactive": "Inactive" },
+      "actions": {
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "delete": "Delete"
+      },
+      "modal": {
+        "addTitle": "Add city",
+        "editTitle": "Edit city",
+        "code": "Code",
+        "code_hint": "City/settlement code",
+        "nameHr": "Name (HR)",
+        "nameEn": "Name (EN)",
+        "municipality": "Municipality",
+        "ordinal": "Order",
+        "isActive": "Active"
+      },
+      "confirm": {
+        "deactivate": "Are you sure you want to deactivate this record?",
+        "activate": "Are you sure you want to activate this record?",
+        "delete": "Are you sure you want to delete this record?",
+        "delete_description": "This action is irreversible!",
+        "delete_ok": "Delete"
+      }
     }
   },
   "breadcrumbs": {
     "codebooks": "Codebooks",
-    "gender": "Genders"
+    "gender": "Genders",
+    "country": "Countries",
+    "county": "Counties",
+    "municipality": "Municipalities",
+    "city": "Cities"
   },
   "common": {
     "save": "Save",

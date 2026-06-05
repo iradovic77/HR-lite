@@ -150,7 +150,7 @@ public partial class InitialCreate : Migration
             {
                 Id        = table.Column<Guid>(type: "uuid", nullable: false),
                 Code      = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                CountryId = table.Column<Guid>(type: "uuid", nullable: false),
+                CountryId = table.Column<Guid>(type: "uuid", nullable: true),
                 IsActive  = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                 Ordinal   = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -174,7 +174,7 @@ public partial class InitialCreate : Migration
             {
                 Id       = table.Column<Guid>(type: "uuid", nullable: false),
                 Code     = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                CountyId = table.Column<Guid>(type: "uuid", nullable: false),
+                CountyId = table.Column<Guid>(type: "uuid", nullable: true),
                 IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                 Ordinal  = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -197,7 +197,7 @@ public partial class InitialCreate : Migration
             {
                 Id             = table.Column<Guid>(type: "uuid", nullable: false),
                 Code           = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                MunicipalityId = table.Column<Guid>(type: "uuid", nullable: false),
+                MunicipalityId = table.Column<Guid>(type: "uuid", nullable: true),
                 IsActive       = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                 Ordinal        = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                 CreatedAt      = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),

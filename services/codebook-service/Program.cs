@@ -14,8 +14,20 @@ builder.Services.AddDbContext<CodebookDbContext>(options =>
 );
 
 // ── Repository i Service registracija ───────────────────────────────
-builder.Services.AddScoped<IGenderRepository, GenderRepository>();
-builder.Services.AddScoped<IGenderService,    GenderService>();
+builder.Services.AddScoped<IGenderRepository,       GenderRepository>();
+builder.Services.AddScoped<IGenderService,           GenderService>();
+
+builder.Services.AddScoped<ICountryRepository,      CountryRepository>();
+builder.Services.AddScoped<ICountryService,          CountryService>();
+
+builder.Services.AddScoped<ICountyRepository,       CountyRepository>();
+builder.Services.AddScoped<ICountyService,           CountyService>();
+
+builder.Services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
+builder.Services.AddScoped<IMunicipalityService,     MunicipalityService>();
+
+builder.Services.AddScoped<ISettlementRepository,   SettlementRepository>();
+builder.Services.AddScoped<ISettlementService,       SettlementService>();
 
 // ── CORS — dozvoli frontend (dev i produkcija) ───────────────────────
 builder.Services.AddCors(options =>
