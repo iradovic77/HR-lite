@@ -34,7 +34,7 @@ export default function AgGridWrapper<T extends object>({
 }: AgGridWrapperProps<T>) {
   const gridRef = useRef<AgGridReact<T>>(null)
   const { token } = antTheme.useToken()
-  const isDark = token.colorBgBase === '#000000'
+  const isDark = token.colorBgBase === '#000'
   const { i18n } = useTranslation()
 
   const [currentPage, setCurrentPage] = useState(1)
