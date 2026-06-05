@@ -227,6 +227,7 @@
     "required": "Ovo polje je obavezno",
     "error_in_use": "Zapis nije moguće obrisati jer se koristi u sustavu.",
     "error_delete": "Greška pri brisanju zapisa.",
-    "only_active": "Prikaži samo aktivne"
+    "only_active": "Prikaži samo aktivne",
+    "export_csv": "Izvoz u CSV"
   }
 }

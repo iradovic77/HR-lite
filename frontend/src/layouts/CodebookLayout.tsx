@@ -42,8 +42,8 @@ export default function CodebookLayout({ title, extra, pagination, children }: C
         {extra}
       </div>
 
-      {/* Tablica — skrola samo kad sadržaj prelazi raspoloživi prostor */}
-      <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+      {/* Tablica — AG Grid ili Ant Table */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
         {children}
       </div>
 

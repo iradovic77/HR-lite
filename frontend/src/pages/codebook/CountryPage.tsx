@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Table, Button, Tag, Space, Form, Input,
-  InputNumber, Switch, App, Pagination, Tooltip, Checkbox,
+  Button, Tag, Space, Form, Input,
+  InputNumber, Switch, App, Tooltip, Checkbox,
 } from 'antd'
 import AppModal from '@/components/AppModal'
-import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons'
-import type { ColumnsType } from 'antd/es/table'
+import AgGridWrapper from '@/components/AgGridWrapper'
+import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons'
+import type { ColDef, ICellRendererParams } from 'ag-grid-community'
 import { countryApi, type CountryResponse, type CreateCountryRequest } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
 
-const PAGE_SIZE = 20
 type FormValues = Omit<CountryResponse, 'id'>
 
 export default function CountryPage() {
@@ -19,19 +19,18 @@ export default function CountryPage() {
 
   const [data, setData]               = useState<CountryResponse[]>([])
   const [loading, setLoading]         = useState(false)
-  const [page, setPage]               = useState(1)
   const [onlyActive, setOnlyActive]   = useState(true)
   const [modalOpen, setModalOpen]     = useState(false)
   const [saving, setSaving]           = useState(false)
   const [editingItem, setEditingItem] = useState<CountryResponse | null>(null)
   const [form] = Form.useForm<FormValues>()
+  const exportRef = useRef<(() => void) | null>(null)
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const res = await countryApi.getAll(true)
       setData(res.data)
-      setPage(1)
     } catch {
       message.error('Greška pri dohvatu podataka')
     } finally {
@@ -41,8 +40,7 @@ export default function CountryPage() {
 
   useEffect(() => { fetchData() }, [])
 
-  const filteredData  = onlyActive ? data.filter(d => d.isActive) : data
-  const paginatedData = filteredData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const filteredData = onlyActive ? data.filter(d => d.isActive) : data
 
   const openAddModal = () => {
     setEditingItem(null)
@@ -100,9 +98,7 @@ export default function CountryPage() {
 
   const confirmToggleActive = (item: CountryResponse) => {
     modal.confirm({
-      title: t(item.isActive
-        ? 'codebook.country.confirm.deactivate'
-        : 'codebook.country.confirm.activate'),
+      title: t(item.isActive ? 'codebook.country.confirm.deactivate' : 'codebook.country.confirm.activate'),
       onOk: () => handleToggleActive(item),
       okText: t('common.yes'),
       cancelText: t('common.no'),
@@ -122,114 +118,93 @@ export default function CountryPage() {
     })
   }
 
-  const columns: ColumnsType<CountryResponse> = [
+  const columnDefs = useMemo<ColDef<CountryResponse>[]>(() => [
     {
-      title: t('codebook.country.columns.code'),
-      dataIndex: 'code',
-      key: 'code',
+      field: 'code',
+      headerName: t('codebook.country.columns.code'),
       width: 80,
-      sorter: (a, b) => a.code.localeCompare(b.code),
     },
     {
-      title: t('codebook.country.columns.nameHr'),
-      dataIndex: 'nameHr',
-      key: 'nameHr',
+      field: 'nameHr',
+      headerName: t('codebook.country.columns.nameHr'),
+      flex: 1,
     },
     {
-      title: t('codebook.country.columns.nameEn'),
-      dataIndex: 'nameEn',
-      key: 'nameEn',
-      render: (val: string | null) => val ?? '—',
+      field: 'nameEn',
+      headerName: t('codebook.country.columns.nameEn'),
+      flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
     },
     {
-      title: t('codebook.country.columns.ordinal'),
-      dataIndex: 'ordinal',
-      key: 'ordinal',
-      width: 110,
-      sorter: (a, b) => a.ordinal - b.ordinal,
-      defaultSortOrder: 'ascend',
+      field: 'ordinal',
+      headerName: t('codebook.country.columns.ordinal'),
+      width: 120,
+      sort: 'asc',
     },
     {
-      title: t('codebook.country.columns.status'),
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: 110,
-      render: (isActive: boolean) =>
-        isActive
+      field: 'isActive',
+      headerName: t('codebook.country.columns.status'),
+      width: 120,
+      filter: false,
+      cellRenderer: (p: ICellRendererParams<CountryResponse>) =>
+        p.value
           ? <Tag color="success">{t('codebook.country.status.active')}</Tag>
           : <Tag color="default">{t('codebook.country.status.inactive')}</Tag>,
     },
     {
-      title: t('codebook.country.columns.actions'),
-      key: 'actions',
+      headerName: t('codebook.country.columns.actions'),
       width: 120,
-      render: (_, record) => (
-        <Space size={4}>
-          <Tooltip title={t('codebook.country.actions.edit')}>
-            <Button type="text" icon={<EditOutlined />} size="small"
-              onClick={() => openEditModal(record)} />
-          </Tooltip>
-          <Tooltip title={t(record.isActive
-            ? 'codebook.country.actions.deactivate'
-            : 'codebook.country.actions.activate')}
-          >
-            <Button type="text"
-              icon={record.isActive ? <StopOutlined /> : <CheckOutlined />}
-              size="small" danger={record.isActive}
-              onClick={() => confirmToggleActive(record)} />
-          </Tooltip>
-          <Tooltip title={t('codebook.country.actions.delete')}>
-            <Button type="text" icon={<DeleteOutlined />} size="small" danger
-              onClick={() => confirmDelete(record)} />
-          </Tooltip>
-        </Space>
-      ),
+      sortable: false,
+      filter: false,
+      resizable: false,
+      cellRenderer: (p: ICellRendererParams<CountryResponse>) => {
+        const rec = p.data!
+        return (
+          <Space size={4}>
+            <Tooltip title={t('codebook.country.actions.edit')}>
+              <Button type="text" icon={<EditOutlined />} size="small" onClick={() => openEditModal(rec)} />
+            </Tooltip>
+            <Tooltip title={t(rec.isActive ? 'codebook.country.actions.deactivate' : 'codebook.country.actions.activate')}>
+              <Button type="text" icon={rec.isActive ? <StopOutlined /> : <CheckOutlined />}
+                size="small" danger={rec.isActive} onClick={() => confirmToggleActive(rec)} />
+            </Tooltip>
+            <Tooltip title={t('codebook.country.actions.delete')}>
+              <Button type="text" icon={<DeleteOutlined />} size="small" danger onClick={() => confirmDelete(rec)} />
+            </Tooltip>
+          </Space>
+        )
+      },
     },
-  ]
+  ], [t, openEditModal, confirmToggleActive, confirmDelete])
 
   return (
     <CodebookLayout
       title={t('codebook.country.title')}
       extra={
         <Space>
-          <Checkbox
-            checked={onlyActive}
-            onChange={e => { setOnlyActive(e.target.checked); setPage(1) }}
-          >
+          <Checkbox checked={onlyActive} onChange={e => setOnlyActive(e.target.checked)}>
             {t('common.only_active')}
           </Checkbox>
+          <Tooltip title={t('common.export_csv')}>
+            <Button icon={<DownloadOutlined />} size="small" onClick={() => exportRef.current?.()} />
+          </Tooltip>
           <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
             {t('codebook.country.addNew')}
           </Button>
         </Space>
       }
-      pagination={
-        <Pagination
-          current={page}
-          total={filteredData.length}
-          pageSize={PAGE_SIZE}
-          onChange={setPage}
-          showTotal={(total) => `Ukupno: ${total}`}
-          size="small"
-        />
-      }
     >
-      <Table
-        columns={columns}
-        dataSource={paginatedData}
-        rowKey="id"
-        size="small"
+      <AgGridWrapper<CountryResponse>
+        columnDefs={columnDefs}
+        rowData={filteredData}
         loading={loading}
-        pagination={false}
-        onRow={(record) => ({
-          style: record.isActive ? {} : { opacity: 0.45 },
-        })}
+        exportRef={exportRef}
+        getRowId={(p) => p.data.id}
+        getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
       />
 
       <AppModal
-        title={editingItem
-          ? t('codebook.country.modal.editTitle')
-          : t('codebook.country.modal.addTitle')}
+        title={editingItem ? t('codebook.country.modal.editTitle') : t('codebook.country.modal.addTitle')}
         open={modalOpen}
         onOk={handleSave}
         onCancel={() => setModalOpen(false)}

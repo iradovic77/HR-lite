@@ -1,19 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Table, Button, Tag, Space, Form, Input, Select,
-  InputNumber, Switch, App, Pagination, Tooltip, Checkbox,
+  Button, Tag, Space, Form, Input, Select,
+  InputNumber, Switch, App, Tooltip, Checkbox,
 } from 'antd'
 import AppModal from '@/components/AppModal'
-import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons'
-import type { ColumnsType } from 'antd/es/table'
+import AgGridWrapper from '@/components/AgGridWrapper'
+import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons'
+import type { ColDef, ICellRendererParams } from 'ag-grid-community'
 import {
   municipalityApi, settlementApi,
   type MunicipalityResponse, type SettlementResponse, type CreateSettlementRequest,
 } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
-
-const PAGE_SIZE = 20
 
 interface FormValues {
   code: string
@@ -31,13 +30,13 @@ export default function SettlementPage() {
   const [data, setData]                             = useState<SettlementResponse[]>([])
   const [municipalities, setMunicipalities]         = useState<MunicipalityResponse[]>([])
   const [loading, setLoading]                       = useState(false)
-  const [page, setPage]                             = useState(1)
   const [onlyActive, setOnlyActive]                 = useState(true)
   const [municipalityFilter, setMunicipalityFilter] = useState<string | null>(null)
   const [modalOpen, setModalOpen]                   = useState(false)
   const [saving, setSaving]                         = useState(false)
   const [editingItem, setEditingItem]               = useState<SettlementResponse | null>(null)
   const [form] = Form.useForm<FormValues>()
+  const exportRef = useRef<(() => void) | null>(null)
 
   const fetchMunicipalities = async () => {
     try {
@@ -51,7 +50,6 @@ export default function SettlementPage() {
     try {
       const res = await settlementApi.getAll(true, municipalityFilter)
       setData(res.data)
-      setPage(1)
     } catch {
       message.error('Greška pri dohvatu podataka')
     } finally {
@@ -62,8 +60,7 @@ export default function SettlementPage() {
   useEffect(() => { fetchMunicipalities() }, [])
   useEffect(() => { fetchData() }, [municipalityFilter])
 
-  const filteredData  = onlyActive ? data.filter(d => d.isActive) : data
-  const paginatedData = filteredData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const filteredData = onlyActive ? data.filter(d => d.isActive) : data
 
   const openAddModal = () => {
     setEditingItem(null)
@@ -128,9 +125,7 @@ export default function SettlementPage() {
 
   const confirmToggleActive = (item: SettlementResponse) => {
     modal.confirm({
-      title: t(item.isActive
-        ? 'codebook.city.confirm.deactivate'
-        : 'codebook.city.confirm.activate'),
+      title: t(item.isActive ? 'codebook.city.confirm.deactivate' : 'codebook.city.confirm.activate'),
       onOk: () => handleToggleActive(item),
       okText: t('common.yes'),
       cancelText: t('common.no'),
@@ -150,78 +145,75 @@ export default function SettlementPage() {
     })
   }
 
-  const columns: ColumnsType<SettlementResponse> = [
+  const municipalityOptions = useMemo(
+    () => municipalities.map(m => ({ value: m.id, label: m.nameHr })),
+    [municipalities]
+  )
+
+  const columnDefs = useMemo<ColDef<SettlementResponse>[]>(() => [
     {
-      title: t('codebook.city.columns.code'),
-      dataIndex: 'code',
-      key: 'code',
+      field: 'code',
+      headerName: t('codebook.city.columns.code'),
       width: 80,
-      sorter: (a, b) => a.code.localeCompare(b.code),
     },
     {
-      title: t('codebook.city.columns.nameHr'),
-      dataIndex: 'nameHr',
-      key: 'nameHr',
+      field: 'nameHr',
+      headerName: t('codebook.city.columns.nameHr'),
+      flex: 1,
     },
     {
-      title: t('codebook.city.columns.nameEn'),
-      dataIndex: 'nameEn',
-      key: 'nameEn',
-      render: (val: string | null) => val ?? '—',
+      field: 'nameEn',
+      headerName: t('codebook.city.columns.nameEn'),
+      flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
     },
     {
-      title: t('codebook.city.columns.municipality'),
-      dataIndex: 'municipalityNameHr',
-      key: 'municipalityNameHr',
-      render: (val: string | null) => val ?? '—',
+      field: 'municipalityNameHr',
+      headerName: t('codebook.city.columns.municipality'),
+      flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
     },
     {
-      title: t('codebook.city.columns.ordinal'),
-      dataIndex: 'ordinal',
-      key: 'ordinal',
-      width: 110,
-      sorter: (a, b) => a.ordinal - b.ordinal,
-      defaultSortOrder: 'ascend',
+      field: 'ordinal',
+      headerName: t('codebook.city.columns.ordinal'),
+      width: 120,
+      sort: 'asc',
     },
     {
-      title: t('codebook.city.columns.status'),
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: 110,
-      render: (isActive: boolean) =>
-        isActive
+      field: 'isActive',
+      headerName: t('codebook.city.columns.status'),
+      width: 120,
+      filter: false,
+      cellRenderer: (p: ICellRendererParams<SettlementResponse>) =>
+        p.value
           ? <Tag color="success">{t('codebook.city.status.active')}</Tag>
           : <Tag color="default">{t('codebook.city.status.inactive')}</Tag>,
     },
     {
-      title: t('codebook.city.columns.actions'),
-      key: 'actions',
+      headerName: t('codebook.city.columns.actions'),
       width: 120,
-      render: (_, record) => (
-        <Space size={4}>
-          <Tooltip title={t('codebook.city.actions.edit')}>
-            <Button type="text" icon={<EditOutlined />} size="small"
-              onClick={() => openEditModal(record)} />
-          </Tooltip>
-          <Tooltip title={t(record.isActive
-            ? 'codebook.city.actions.deactivate'
-            : 'codebook.city.actions.activate')}
-          >
-            <Button type="text"
-              icon={record.isActive ? <StopOutlined /> : <CheckOutlined />}
-              size="small" danger={record.isActive}
-              onClick={() => confirmToggleActive(record)} />
-          </Tooltip>
-          <Tooltip title={t('codebook.city.actions.delete')}>
-            <Button type="text" icon={<DeleteOutlined />} size="small" danger
-              onClick={() => confirmDelete(record)} />
-          </Tooltip>
-        </Space>
-      ),
+      sortable: false,
+      filter: false,
+      resizable: false,
+      cellRenderer: (p: ICellRendererParams<SettlementResponse>) => {
+        const rec = p.data!
+        return (
+          <Space size={4}>
+            <Tooltip title={t('codebook.city.actions.edit')}>
+              <Button type="text" icon={<EditOutlined />} size="small" onClick={() => openEditModal(rec)} />
+            </Tooltip>
+            <Tooltip title={t(rec.isActive ? 'codebook.city.actions.deactivate' : 'codebook.city.actions.activate')}>
+              <Button type="text" icon={rec.isActive ? <StopOutlined /> : <CheckOutlined />}
+                size="small" danger={rec.isActive} onClick={() => confirmToggleActive(rec)} />
+            </Tooltip>
+            <Tooltip title={t('codebook.city.actions.delete')}>
+              <Button type="text" icon={<DeleteOutlined />} size="small" danger onClick={() => confirmDelete(rec)} />
+            </Tooltip>
+          </Space>
+        )
+      },
     },
-  ]
-
-  const municipalityOptions = municipalities.map(m => ({ value: m.id, label: m.nameHr }))
+  ], [t, openEditModal, confirmToggleActive, confirmDelete])
 
   return (
     <CodebookLayout
@@ -232,49 +224,34 @@ export default function SettlementPage() {
             allowClear
             placeholder={t('codebook.city.filter_municipality')}
             value={municipalityFilter}
-            onChange={(v) => { setMunicipalityFilter(v ?? null); setPage(1) }}
+            onChange={(v) => setMunicipalityFilter(v ?? null)}
             options={municipalityOptions}
             style={{ minWidth: 160 }}
             size="small"
           />
-          <Checkbox
-            checked={onlyActive}
-            onChange={e => { setOnlyActive(e.target.checked); setPage(1) }}
-          >
+          <Checkbox checked={onlyActive} onChange={e => setOnlyActive(e.target.checked)}>
             {t('common.only_active')}
           </Checkbox>
+          <Tooltip title={t('common.export_csv')}>
+            <Button icon={<DownloadOutlined />} size="small" onClick={() => exportRef.current?.()} />
+          </Tooltip>
           <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
             {t('codebook.city.addNew')}
           </Button>
         </Space>
       }
-      pagination={
-        <Pagination
-          current={page}
-          total={filteredData.length}
-          pageSize={PAGE_SIZE}
-          onChange={setPage}
-          showTotal={(total) => `Ukupno: ${total}`}
-          size="small"
-        />
-      }
     >
-      <Table
-        columns={columns}
-        dataSource={paginatedData}
-        rowKey="id"
-        size="small"
+      <AgGridWrapper<SettlementResponse>
+        columnDefs={columnDefs}
+        rowData={filteredData}
         loading={loading}
-        pagination={false}
-        onRow={(record) => ({
-          style: record.isActive ? {} : { opacity: 0.45 },
-        })}
+        exportRef={exportRef}
+        getRowId={(p) => p.data.id}
+        getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
       />
 
       <AppModal
-        title={editingItem
-          ? t('codebook.city.modal.editTitle')
-          : t('codebook.city.modal.addTitle')}
+        title={editingItem ? t('codebook.city.modal.editTitle') : t('codebook.city.modal.addTitle')}
         open={modalOpen}
         onOk={handleSave}
         onCancel={() => setModalOpen(false)}
