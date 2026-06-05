@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Table, Button, Tag, Space, Modal, Form, Input,
+  Table, Button, Tag, Space, Form, Input,
   InputNumber, Switch, Popconfirm, App, Pagination,
 } from 'antd'
+import AppModal from '@/components/AppModal'
 import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import { genderApi, type GenderResponse, type CreateGenderRequest } from '@/api/codebook'
@@ -194,7 +195,7 @@ export default function GenderPage() {
         pagination={false}
       />
 
-      <Modal
+      <AppModal
         title={editingItem
           ? t('codebook.gender.modal.editTitle')
           : t('codebook.gender.modal.addTitle')}
@@ -236,7 +237,7 @@ export default function GenderPage() {
             <Switch />
           </Form.Item>
         </Form>
-      </Modal>
+      </AppModal>
     </CodebookLayout>
   )
 }
