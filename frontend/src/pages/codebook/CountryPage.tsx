@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Button, Tag, Space, Form, Input,
@@ -6,7 +6,7 @@ import {
 } from 'antd'
 import AppModal from '@/components/AppModal'
 import AgGridWrapper from '@/components/AgGridWrapper'
-import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { ColDef, ICellRendererParams } from 'ag-grid-community'
 import { countryApi, type CountryResponse, type CreateCountryRequest } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
@@ -24,7 +24,6 @@ export default function CountryPage() {
   const [saving, setSaving]           = useState(false)
   const [editingItem, setEditingItem] = useState<CountryResponse | null>(null)
   const [form] = Form.useForm<FormValues>()
-  const exportRef = useRef<(() => void) | null>(null)
 
   const fetchData = async () => {
     setLoading(true)
@@ -185,9 +184,6 @@ export default function CountryPage() {
           <Checkbox checked={onlyActive} onChange={e => setOnlyActive(e.target.checked)}>
             {t('common.only_active')}
           </Checkbox>
-          <Tooltip title={t('common.export_csv')}>
-            <Button icon={<DownloadOutlined />} size="small" onClick={() => exportRef.current?.()} />
-          </Tooltip>
           <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
             {t('codebook.country.addNew')}
           </Button>
@@ -198,7 +194,6 @@ export default function CountryPage() {
         columnDefs={columnDefs}
         rowData={filteredData}
         loading={loading}
-        exportRef={exportRef}
         getRowId={(p) => p.data.id}
         getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
       />
