@@ -21,6 +21,7 @@ import {
   HomeOutlined,
   MoonOutlined,
   SunOutlined,
+  LeftOutlined,
 } from '@ant-design/icons'
 import AppBreadcrumbs from '@/components/AppBreadcrumbs'
 
@@ -40,11 +41,16 @@ const PAGE_TITLES: Record<string, string> = {
   '/codebook/city':         'codebook.city.title',
 }
 
+const SIDER_WIDTH          = 200
+const SIDER_COLLAPSED_WIDTH = 80
+const TOGGLE_BTN_SIZE       = 18
+
 export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
+  const [btnHovered, setBtnHovered] = useState(false)
   const { token } = antTheme.useToken()
 
   const pageTitle = PAGE_TITLES[location.pathname]
@@ -57,31 +63,11 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
       icon: <BookOutlined />,
       label: t('nav.codebooks'),
       children: [
-        {
-          key: '/codebook/gender',
-          icon: <ManOutlined />,
-          label: t('nav.gender'),
-        },
-        {
-          key: '/codebook/country',
-          icon: <GlobalOutlined />,
-          label: t('nav.country'),
-        },
-        {
-          key: '/codebook/county',
-          icon: <ApartmentOutlined />,
-          label: t('nav.county'),
-        },
-        {
-          key: '/codebook/municipality',
-          icon: <EnvironmentOutlined />,
-          label: t('nav.municipality'),
-        },
-        {
-          key: '/codebook/city',
-          icon: <HomeOutlined />,
-          label: t('nav.city'),
-        },
+        { key: '/codebook/gender',       icon: <ManOutlined />,         label: t('nav.gender') },
+        { key: '/codebook/country',      icon: <GlobalOutlined />,      label: t('nav.country') },
+        { key: '/codebook/county',       icon: <ApartmentOutlined />,   label: t('nav.county') },
+        { key: '/codebook/municipality', icon: <EnvironmentOutlined />, label: t('nav.municipality') },
+        { key: '/codebook/city',         icon: <HomeOutlined />,        label: t('nav.city') },
       ],
     },
   ]
@@ -91,13 +77,17 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
     { value: 'en', label: '🇬🇧 EN' },
   ]
 
+  const siderWidth = collapsed ? SIDER_COLLAPSED_WIDTH : SIDER_WIDTH
+
   return (
-    <Layout style={{ height: '100vh' }}>
+    <Layout style={{ height: '100vh', position: 'relative' }}>
       {/* ── Sidebar ─────────────────────────────────────── */}
       <Sider
+        trigger={null}
         collapsible
         collapsed={collapsed}
-        onCollapse={setCollapsed}
+        width={SIDER_WIDTH}
+        collapsedWidth={SIDER_COLLAPSED_WIDTH}
         style={{ background: token.colorBgContainer }}
       >
         {/* Logo / naziv aplikacije */}
@@ -124,6 +114,44 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
         />
       </Sider>
 
+      {/* ── Collapse toggle button ────────────────────────── */}
+      <button
+        onClick={() => setCollapsed(c => !c)}
+        onMouseEnter={() => setBtnHovered(true)}
+        onMouseLeave={() => setBtnHovered(false)}
+        style={{
+          position: 'absolute',
+          left: siderWidth - TOGGLE_BTN_SIZE / 2,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: TOGGLE_BTN_SIZE,
+          height: TOGGLE_BTN_SIZE,
+          borderRadius: '50%',
+          border: `1px solid ${btnHovered ? token.colorPrimary : token.colorBorderSecondary}`,
+          background: btnHovered ? token.colorPrimaryBg : token.colorBgContainer,
+          boxShadow: btnHovered
+            ? `0 0 0 2px ${token.colorPrimaryBg}`
+            : '0 1px 4px rgba(0,0,0,0.12)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 0,
+          zIndex: 100,
+          color: btnHovered ? token.colorPrimary : token.colorTextTertiary,
+          transition: 'left 0.2s, border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s',
+          outline: 'none',
+        }}
+      >
+        <LeftOutlined style={{
+          fontSize: 9,
+          transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 0.2s',
+          display: 'block',
+          lineHeight: 1,
+        }} />
+      </button>
+
       <Layout>
         {/* ── Topbar ──────────────────────────────────────── */}
         <Header style={{
@@ -144,7 +172,6 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
 
           {/* Desni dio topbara */}
           <Space size="middle">
-            {/* Dropdown za odabir jezika */}
             <Select
               value={i18n.language}
               onChange={(lang) => i18n.changeLanguage(lang)}
@@ -153,7 +180,6 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
               size="small"
             />
 
-            {/* Toggle za light/dark mode */}
             <Tooltip title={isDark ? t('topbar.theme_light') : t('topbar.theme_dark')}>
               <Switch
                 checked={isDark}
@@ -163,7 +189,6 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
               />
             </Tooltip>
 
-            {/* Avatar prijavljenog korisnika */}
             <Tooltip title={t('topbar.user_role')}>
               <Avatar
                 style={{ backgroundColor: token.colorPrimary, cursor: 'pointer' }}
