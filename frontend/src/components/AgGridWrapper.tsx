@@ -1,13 +1,13 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from 'react'
 import { AgGridReact } from 'ag-grid-react'
-import {
-  themeQuartz,
-  colorSchemeDark,
-  type ColDef,
-  type GetRowIdParams,
-  type RowClassParams,
-  type RowStyle,
-  type LocaleText,
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-quartz.css'
+import type {
+  ColDef,
+  GetRowIdParams,
+  RowClassParams,
+  RowStyle,
+  LocaleText,
 } from 'ag-grid-community'
 import { theme as antTheme, Pagination, Button, Space } from 'antd'
 import { DownloadOutlined, FileExcelOutlined } from '@ant-design/icons'
@@ -41,18 +41,6 @@ export default function AgGridWrapper<T extends object>({
   const [currentPage, setCurrentPage] = useState(1)
   const [totalRows, setTotalRows]     = useState(0)
   const [pageSize, setPageSize]       = useState(defaultPageSize)
-
-  const gridTheme = useMemo(() => {
-    const base = isDark ? themeQuartz.withPart(colorSchemeDark) : themeQuartz
-    return base.withParams({
-      accentColor: token.colorPrimary,
-      rowHeight: 32,
-      headerHeight: 36,
-      fontSize: 13,
-      fontFamily:
-        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    })
-  }, [isDark, token.colorPrimary])
 
   const localeText = i18n.language === 'hr' ? AG_GRID_LOCALE_HR : AG_GRID_LOCALE_EN
 
@@ -96,15 +84,24 @@ export default function AgGridWrapper<T extends object>({
     []
   )
 
+  const themeClass = isDark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'
+
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
 
-      {/* Grid — position:relative container so AG Grid's height:100% resolves correctly */}
+      {/* Grid area — position:relative so AG Grid's height:100% resolves correctly */}
       <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
-        <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+        <div
+          className={themeClass}
+          style={{
+            position: 'absolute',
+            top: 0, right: 0, bottom: 0, left: 0,
+            '--ag-active-color': token.colorPrimary,
+            '--ag-font-size': '13px',
+          } as React.CSSProperties}
+        >
           <AgGridReact<T>
             ref={gridRef}
-            theme={gridTheme}
             columnDefs={columnDefs}
             rowData={rowData ?? []}
             loading={loading}
