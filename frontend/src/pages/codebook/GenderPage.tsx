@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Table, Button, Tag, Space, Form, Input,
-  InputNumber, Switch, Popconfirm, App, Pagination,
+  InputNumber, Switch, App, Pagination, Tooltip, Checkbox,
 } from 'antd'
 import AppModal from '@/components/AppModal'
 import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons'
@@ -15,11 +15,12 @@ type FormValues = Omit<GenderResponse, 'id'>
 
 export default function GenderPage() {
   const { t } = useTranslation()
-  const { message } = App.useApp()
+  const { message, modal } = App.useApp()
 
   const [data, setData]               = useState<GenderResponse[]>([])
   const [loading, setLoading]         = useState(false)
   const [page, setPage]               = useState(1)
+  const [onlyActive, setOnlyActive]   = useState(true)
   const [modalOpen, setModalOpen]     = useState(false)
   const [saving, setSaving]           = useState(false)
   const [editingItem, setEditingItem] = useState<GenderResponse | null>(null)
@@ -42,7 +43,8 @@ export default function GenderPage() {
 
   useEffect(() => { fetchData() }, [])
 
-  const paginatedData = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const filteredData  = onlyActive ? data.filter(d => d.isActive) : data
+  const paginatedData = filteredData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   // ── Handlers ────────────────────────────────────────────────────────
 
@@ -102,6 +104,32 @@ export default function GenderPage() {
     }
   }
 
+  // ── Confirm dijalozi (centrirani na ekranu) ─────────────────────────
+
+  const confirmToggleActive = (item: GenderResponse) => {
+    modal.confirm({
+      title: t(item.isActive
+        ? 'codebook.gender.confirm.deactivate'
+        : 'codebook.gender.confirm.activate'),
+      onOk: () => handleToggleActive(item),
+      okText: t('common.yes'),
+      cancelText: t('common.no'),
+      centered: true,
+    })
+  }
+
+  const confirmDelete = (item: GenderResponse) => {
+    modal.confirm({
+      title: t('codebook.gender.confirm.delete'),
+      content: t('codebook.gender.confirm.delete_description'),
+      onOk: () => handleDelete(item),
+      okText: t('codebook.gender.confirm.delete_ok'),
+      okType: 'danger',
+      cancelText: t('common.no'),
+      centered: true,
+    })
+  }
+
   // ── Kolone tablice ──────────────────────────────────────────────────
 
   const columns: ColumnsType<GenderResponse> = [
@@ -144,48 +172,35 @@ export default function GenderPage() {
     {
       title: t('codebook.gender.columns.actions'),
       key: 'actions',
-      width: 200,
+      width: 120,
       render: (_, record) => (
-        <Space>
-          <Button
-            type="text" icon={<EditOutlined />} size="small"
-            onClick={() => openEditModal(record)}
-          >
-            {t('codebook.gender.actions.edit')}
-          </Button>
+        <Space size={4}>
+          <Tooltip title={t('codebook.gender.actions.edit')}>
+            <Button
+              type="text" icon={<EditOutlined />} size="small"
+              onClick={() => openEditModal(record)}
+            />
+          </Tooltip>
 
-          <Popconfirm
-            title={t(record.isActive
-              ? 'codebook.gender.confirm.deactivate'
-              : 'codebook.gender.confirm.activate')}
-            onConfirm={() => handleToggleActive(record)}
-            okText={t('common.yes')}
-            cancelText={t('common.no')}
+          <Tooltip title={t(record.isActive
+            ? 'codebook.gender.actions.deactivate'
+            : 'codebook.gender.actions.activate')}
           >
             <Button
               type="text"
               icon={record.isActive ? <StopOutlined /> : <CheckOutlined />}
               size="small"
               danger={record.isActive}
-            >
-              {t(record.isActive
-                ? 'codebook.gender.actions.deactivate'
-                : 'codebook.gender.actions.activate')}
-            </Button>
-          </Popconfirm>
+              onClick={() => confirmToggleActive(record)}
+            />
+          </Tooltip>
 
-          <Popconfirm
-            title={t('codebook.gender.confirm.delete')}
-            description={t('codebook.gender.confirm.delete_description')}
-            onConfirm={() => handleDelete(record)}
-            okText={t('codebook.gender.confirm.delete_ok')}
-            okType="danger"
-            cancelText={t('common.no')}
-          >
-            <Button type="text" icon={<DeleteOutlined />} size="small" danger>
-              {t('codebook.gender.actions.delete')}
-            </Button>
-          </Popconfirm>
+          <Tooltip title={t('codebook.gender.actions.delete')}>
+            <Button
+              type="text" icon={<DeleteOutlined />} size="small" danger
+              onClick={() => confirmDelete(record)}
+            />
+          </Tooltip>
         </Space>
       ),
     },
@@ -197,14 +212,22 @@ export default function GenderPage() {
     <CodebookLayout
       title={t('codebook.gender.title')}
       extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
-          {t('codebook.gender.addNew')}
-        </Button>
+        <Space>
+          <Checkbox
+            checked={onlyActive}
+            onChange={e => { setOnlyActive(e.target.checked); setPage(1) }}
+          >
+            {t('common.only_active')}
+          </Checkbox>
+          <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
+            {t('codebook.gender.addNew')}
+          </Button>
+        </Space>
       }
       pagination={
         <Pagination
           current={page}
-          total={data.length}
+          total={filteredData.length}
           pageSize={PAGE_SIZE}
           onChange={setPage}
           showTotal={(total) => `Ukupno: ${total}`}
@@ -219,6 +242,9 @@ export default function GenderPage() {
         size="small"
         loading={loading}
         pagination={false}
+        onRow={(record) => ({
+          style: record.isActive ? {} : { opacity: 0.45 },
+        })}
       />
 
       <AppModal

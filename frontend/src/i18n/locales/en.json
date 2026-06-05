@@ -61,6 +61,7 @@
     "no": "No",
     "required": "This field is required",
     "error_in_use": "This record cannot be deleted because it is used elsewhere in the system.",
-    "error_delete": "An error occurred while deleting the record."
+    "error_delete": "An error occurred while deleting the record.",
+    "only_active": "Show active only"
   }
 }
