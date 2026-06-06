@@ -40,7 +40,7 @@ public class CountryService : ICountryService
         };
 
         await _repo.CreateAsync(country);
-        await UpsertTranslationsAsync(country.Id, req.NameHr, req.NameEn);
+        await UpsertTranslationsAsync(country.Id, req.NameHr, req.NameEn, req.CitizenshipHr, req.CitizenshipEn);
 
         return (await _repo.GetByIdAsync(country.Id))!;
     }
@@ -57,7 +57,7 @@ public class CountryService : ICountryService
         country.UpdatedBy = Guid.Empty;
 
         await _repo.SaveChangesAsync();
-        await UpsertTranslationsAsync(id, req.NameHr, req.NameEn);
+        await UpsertTranslationsAsync(id, req.NameHr, req.NameEn, req.CitizenshipHr, req.CitizenshipEn);
 
         return await _repo.GetByIdAsync(id);
     }
@@ -87,12 +87,19 @@ public class CountryService : ICountryService
         return new DeleteResult(Found: true, HasReferences: false);
     }
 
-    private async Task UpsertTranslationsAsync(Guid countryId, string nameHr, string? nameEn)
+    private async Task UpsertTranslationsAsync(Guid countryId, string nameHr, string? nameEn,
+        string? citizenshipHr, string? citizenshipEn)
     {
         await UpsertOneAsync(countryId, HrId, "Name", nameHr);
 
         if (!string.IsNullOrWhiteSpace(nameEn))
             await UpsertOneAsync(countryId, EnId, "Name", nameEn);
+
+        if (!string.IsNullOrWhiteSpace(citizenshipHr))
+            await UpsertOneAsync(countryId, HrId, "Citizenship", citizenshipHr);
+
+        if (!string.IsNullOrWhiteSpace(citizenshipEn))
+            await UpsertOneAsync(countryId, EnId, "Citizenship", citizenshipEn);
 
         await _db.SaveChangesAsync();
     }

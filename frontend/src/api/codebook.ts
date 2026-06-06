@@ -49,6 +49,8 @@ export interface CountryResponse {
   code: string
   nameHr: string
   nameEn: string | null
+  citizenshipHr: string | null
+  citizenshipEn: string | null
   ordinal: number
   isActive: boolean
 }
@@ -57,6 +59,8 @@ export interface CreateCountryRequest {
   code: string
   nameHr: string
   nameEn?: string
+  citizenshipHr?: string
+  citizenshipEn?: string
   ordinal: number
   isActive: boolean
 }
@@ -65,6 +69,8 @@ export interface UpdateCountryRequest {
   code: string
   nameHr: string
   nameEn?: string | null
+  citizenshipHr?: string | null
+  citizenshipEn?: string | null
   ordinal: number
   isActive: boolean
 }

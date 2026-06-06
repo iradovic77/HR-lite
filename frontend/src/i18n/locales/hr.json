@@ -64,6 +64,7 @@
         "code": "Kod",
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
+        "citizenship": "Državljanstvo",
         "ordinal": "Redoslijed",
         "status": "Status",
         "actions": "Akcije"
@@ -82,6 +83,8 @@
         "code_hint": "ISO 3166-1 alpha-2 (npr. HR, BA, RS)",
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
+        "citizenshipHr": "Državljanstvo (HR)",
+        "citizenshipEn": "Državljanstvo (EN)",
         "ordinal": "Redoslijed",
         "isActive": "Aktivan"
       },

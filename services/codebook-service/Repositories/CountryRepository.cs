@@ -43,6 +43,20 @@ public class CountryRepository : ICountryRepository
                              && t.LanguageId == EnId
                              && t.FieldName  == "Name")
                     .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CitizenshipHr = _db.Translations
+                    .Where(t => t.EntityType == "codebook_country"
+                             && t.EntityId   == c.Id
+                             && t.LanguageId == HrId
+                             && t.FieldName  == "Citizenship")
+                    .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CitizenshipEn = _db.Translations
+                    .Where(t => t.EntityType == "codebook_country"
+                             && t.EntityId   == c.Id
+                             && t.LanguageId == EnId
+                             && t.FieldName  == "Citizenship")
+                    .Select(t => t.Value)
                     .FirstOrDefault()
             })
             .ToListAsync();
@@ -70,6 +84,20 @@ public class CountryRepository : ICountryRepository
                              && t.EntityId   == c.Id
                              && t.LanguageId == EnId
                              && t.FieldName  == "Name")
+                    .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CitizenshipHr = _db.Translations
+                    .Where(t => t.EntityType == "codebook_country"
+                             && t.EntityId   == c.Id
+                             && t.LanguageId == HrId
+                             && t.FieldName  == "Citizenship")
+                    .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CitizenshipEn = _db.Translations
+                    .Where(t => t.EntityType == "codebook_country"
+                             && t.EntityId   == c.Id
+                             && t.LanguageId == EnId
+                             && t.FieldName  == "Citizenship")
                     .Select(t => t.Value)
                     .FirstOrDefault()
             })

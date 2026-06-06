@@ -15,7 +15,7 @@ import { useTheme } from '@/context/ThemeContext'
 type FormValues = Omit<CountryResponse, 'id'>
 
 export default function CountryPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { message, modal } = App.useApp()
   const { isDark } = useTheme()
 
@@ -137,6 +137,18 @@ export default function CountryPage() {
       valueFormatter: (p) => p.value ?? '—',
     },
     {
+      headerName: t('codebook.country.columns.citizenship'),
+      flex: 1,
+      valueGetter: (p) => {
+        const row = p.data as CountryResponse
+        if (!row) return '—'
+        const val = i18n.language === 'hr'
+          ? row.citizenshipHr
+          : (row.citizenshipEn ?? row.citizenshipHr)
+        return val ?? '—'
+      },
+    },
+    {
       field: 'ordinal',
       headerName: t('codebook.country.columns.ordinal'),
       width: 120,
@@ -228,6 +240,12 @@ export default function CountryPage() {
             <Input maxLength={200} />
           </Form.Item>
           <Form.Item name="nameEn" label={t('codebook.country.modal.nameEn')}>
+            <Input maxLength={200} />
+          </Form.Item>
+          <Form.Item name="citizenshipHr" label={t('codebook.country.modal.citizenshipHr')}>
+            <Input maxLength={200} />
+          </Form.Item>
+          <Form.Item name="citizenshipEn" label={t('codebook.country.modal.citizenshipEn')}>
             <Input maxLength={200} />
           </Form.Item>
           <Form.Item name="ordinal" label={t('codebook.country.modal.ordinal')}>
