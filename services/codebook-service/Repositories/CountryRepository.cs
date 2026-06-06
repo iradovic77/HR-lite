@@ -26,11 +26,8 @@ public class CountryRepository : ICountryRepository
 
         var ids = countries.Select(c => c.Id).ToList();
 
-        // Dohvat prijevoda bez EntityType filtra — EntityId (GUID) je globalno jedinstven.
-        // EntityType nije potreban za korektnost; njegova pogrešna vrijednost u bazi
-        // jedini je razlog zašto join može propasti.
         var translations = await _db.Translations
-            .Where(t => ids.Contains(t.EntityId))
+            .Where(t => t.EntityType == "codebook_country" && ids.Contains(t.EntityId))
             .ToListAsync();
 
         var lookup = translations.ToLookup(t => t.EntityId);
@@ -45,7 +42,6 @@ public class CountryRepository : ICountryRepository
                 IsActive      = c.IsActive,
                 Ordinal       = c.Ordinal,
                 NameHr        = trans.FirstOrDefault(t => t.LanguageCode == Hr && t.FieldName == "Name")?.Value
-                                ?? trans.FirstOrDefault(t => t.FieldName == "Name")?.Value
                                 ?? c.Code,
                 NameEn        = trans.FirstOrDefault(t => t.LanguageCode == En && t.FieldName == "Name")?.Value,
                 CitizenshipHr = trans.FirstOrDefault(t => t.LanguageCode == Hr && t.FieldName == "Citizenship")?.Value,
