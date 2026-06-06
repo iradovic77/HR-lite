@@ -94,6 +94,7 @@ export default function AgGridWrapper<T extends object>({
             top: 0, right: 0, bottom: 0, left: 0,
             '--ag-active-color': token.colorPrimary,
             '--ag-font-size': '13px',
+            '--ag-odd-row-background-color': token.colorFillAlter,
           } as React.CSSProperties}
         >
           <AgGridReact<T>
@@ -102,6 +103,7 @@ export default function AgGridWrapper<T extends object>({
             rowData={rowData ?? []}
             loading={loading}
             defaultColDef={defaultColDef}
+            rowHeight={40}
             pagination
             paginationPageSize={pageSize}
             suppressPaginationPanel
