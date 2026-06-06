@@ -9,8 +9,8 @@ public class CountryRepository : ICountryRepository
 {
     private readonly CodebookDbContext _db;
 
-    private static readonly Guid HrId = new("b0000000-0000-0000-0000-000000000001");
-    private static readonly Guid EnId = new("b0000000-0000-0000-0000-000000000002");
+    private const string Hr = "hr";
+    private const string En = "en";
 
     public CountryRepository(CodebookDbContext db) => _db = db;
 
@@ -31,31 +31,31 @@ public class CountryRepository : ICountryRepository
                 IsActive = c.IsActive,
                 Ordinal  = c.Ordinal,
                 NameHr   = _db.Translations
-                    .Where(t => t.EntityType == "codebook_country"
-                             && t.EntityId   == c.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == c.Id
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault() ?? c.Code,
                 NameEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_country"
-                             && t.EntityId   == c.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == c.Id
+                             && t.LanguageCode == En
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault(),
                 CitizenshipHr = _db.Translations
-                    .Where(t => t.EntityType == "codebook_country"
-                             && t.EntityId   == c.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Citizenship")
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == c.Id
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Citizenship")
                     .Select(t => t.Value)
                     .FirstOrDefault(),
                 CitizenshipEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_country"
-                             && t.EntityId   == c.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Citizenship")
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == c.Id
+                             && t.LanguageCode == En
+                             && t.FieldName    == "Citizenship")
                     .Select(t => t.Value)
                     .FirstOrDefault()
             })
@@ -73,31 +73,31 @@ public class CountryRepository : ICountryRepository
                 IsActive = c.IsActive,
                 Ordinal  = c.Ordinal,
                 NameHr   = _db.Translations
-                    .Where(t => t.EntityType == "codebook_country"
-                             && t.EntityId   == c.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == c.Id
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault() ?? c.Code,
                 NameEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_country"
-                             && t.EntityId   == c.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == c.Id
+                             && t.LanguageCode == En
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault(),
                 CitizenshipHr = _db.Translations
-                    .Where(t => t.EntityType == "codebook_country"
-                             && t.EntityId   == c.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Citizenship")
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == c.Id
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Citizenship")
                     .Select(t => t.Value)
                     .FirstOrDefault(),
                 CitizenshipEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_country"
-                             && t.EntityId   == c.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Citizenship")
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == c.Id
+                             && t.LanguageCode == En
+                             && t.FieldName    == "Citizenship")
                     .Select(t => t.Value)
                     .FirstOrDefault()
             })

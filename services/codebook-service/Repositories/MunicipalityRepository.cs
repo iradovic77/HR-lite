@@ -9,8 +9,8 @@ public class MunicipalityRepository : IMunicipalityRepository
 {
     private readonly CodebookDbContext _db;
 
-    private static readonly Guid HrId = new("b0000000-0000-0000-0000-000000000001");
-    private static readonly Guid EnId = new("b0000000-0000-0000-0000-000000000002");
+    private const string Hr = "hr";
+    private const string En = "en";
 
     public MunicipalityRepository(CodebookDbContext db) => _db = db;
 
@@ -35,24 +35,24 @@ public class MunicipalityRepository : IMunicipalityRepository
                 Ordinal  = m.Ordinal,
                 CountyId = m.CountyId,
                 NameHr   = _db.Translations
-                    .Where(t => t.EntityType == "codebook_municipality"
-                             && t.EntityId   == m.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_municipality"
+                             && t.EntityId     == m.Id
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault() ?? m.Code,
                 NameEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_municipality"
-                             && t.EntityId   == m.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_municipality"
+                             && t.EntityId     == m.Id
+                             && t.LanguageCode == En
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault(),
                 CountyNameHr = _db.Translations
-                    .Where(t => t.EntityType == "codebook_county"
-                             && t.EntityId   == m.CountyId
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_county"
+                             && t.EntityId     == m.CountyId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
             })
@@ -71,24 +71,24 @@ public class MunicipalityRepository : IMunicipalityRepository
                 Ordinal  = m.Ordinal,
                 CountyId = m.CountyId,
                 NameHr   = _db.Translations
-                    .Where(t => t.EntityType == "codebook_municipality"
-                             && t.EntityId   == m.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_municipality"
+                             && t.EntityId     == m.Id
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault() ?? m.Code,
                 NameEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_municipality"
-                             && t.EntityId   == m.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_municipality"
+                             && t.EntityId     == m.Id
+                             && t.LanguageCode == En
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault(),
                 CountyNameHr = _db.Translations
-                    .Where(t => t.EntityType == "codebook_county"
-                             && t.EntityId   == m.CountyId
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_county"
+                             && t.EntityId     == m.CountyId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
             })

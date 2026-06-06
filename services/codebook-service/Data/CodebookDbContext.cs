@@ -72,11 +72,11 @@ public class CodebookDbContext : DbContext
     }
 
     // ---------------------------------------------------------------
-    // Seed GUIDs — hardkodirani radi idempotentnosti migracija
+    // Seed konstante
     // ---------------------------------------------------------------
-    // Language
-    internal static readonly Guid LangHrId = new("b0000000-0000-0000-0000-000000000001");
-    internal static readonly Guid LangEnId = new("b0000000-0000-0000-0000-000000000002");
+    // Language codes (PK) — string umjesto Guid
+    internal const string LangHr = "hr";
+    internal const string LangEn = "en";
     // Gender
     internal static readonly Guid GenderMId = new("a1000000-0000-0000-0000-000000000001");
     internal static readonly Guid GenderFId = new("a1000000-0000-0000-0000-000000000002");
@@ -100,30 +100,27 @@ public class CodebookDbContext : DbContext
         modelBuilder.Entity<Language>(entity =>
         {
             entity.ToTable("language");
-            entity.HasKey(e => e.Id);
+            entity.HasKey(e => e.Code);
             entity.Property(e => e.Code).HasMaxLength(10).IsRequired();
             entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
-            entity.HasIndex(e => e.Code).IsUnique();
 
             // ----------------------------------------------------------
             // SEED: podržani jezici
             //
+            // Code je PK — čitljiv, jedinstven, bez JOIN-a.
             // Novi jezik = novi redak ovdje + nova HasData za prijevode.
-            // Bez izmjene sheme ijedne šifarnik tablice.
             // ----------------------------------------------------------
             entity.HasData(
                 new Language
                 {
-                    Id        = LangHrId,
-                    Code      = "hr",
+                    Code      = LangHr,
                     Name      = "Hrvatski",
                     CreatedAt = SeedDate, UpdatedAt = SeedDate,
                     CreatedBy = Guid.Empty, UpdatedBy = Guid.Empty
                 },
                 new Language
                 {
-                    Id        = LangEnId,
-                    Code      = "en",
+                    Code      = LangEn,
                     Name      = "English",
                     CreatedAt = SeedDate, UpdatedAt = SeedDate,
                     CreatedBy = Guid.Empty, UpdatedBy = Guid.Empty
@@ -139,52 +136,41 @@ public class CodebookDbContext : DbContext
             entity.ToTable("translation");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.EntityType).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.LanguageCode).HasMaxLength(10).IsRequired();
             entity.Property(e => e.FieldName).HasMaxLength(100).IsRequired();
             entity.Property(e => e.Value).HasMaxLength(500).IsRequired();
 
             // Unique constraint: jedan prijevod po (entitet, zapis, jezik, polje)
-            entity.HasIndex(e => new { e.EntityType, e.EntityId, e.LanguageId, e.FieldName })
+            entity.HasIndex(e => new { e.EntityType, e.EntityId, e.LanguageCode, e.FieldName })
                   .IsUnique();
 
-            // Pravi FK prema language tablici (ista shema — dozvoljeno)
+            // FK prema language.Code (ista shema — dozvoljeno)
             entity.HasOne<Language>()
                   .WithMany()
-                  .HasForeignKey(e => e.LanguageId)
+                  .HasForeignKey(e => e.LanguageCode)
                   .OnDelete(DeleteBehavior.Restrict);
 
             // ----------------------------------------------------------
             // SEED: prijevodi za Gender šifarnik
             //
-            // PRAVILA za HasData() — edukativni komentar:
-            //
+            // PRAVILA za HasData():
             //  1. Svi ID-evi moraju biti HARDKODIRANI — nikad Guid.NewGuid().
-            //     EF Core koristi ID-eve za praćenje seed stanja između migracija.
-            //
-            //  2. Ne koristiti navigation properties u HasData() objektima.
-            //     Samo skalarni FK-ovi (LanguageId kao Guid).
-            //
-            //  3. Promjena Value u HasData() → EF Core generira UpdateData()
-            //     u sljedećoj migraciji. Ne duplicira. Ne briše.
-            //
-            //  4. Fallback logika (implementira se u servisnom sloju):
-            //     traženi jezik → "hr" → Code entiteta
-            //
-            //  5. Hrvatski ("hr") prijevod je OBAVEZAN za sve šifarnike.
-            //     Engleski i ostali su opcionalni.
+            //  2. Ne koristiti navigation properties — samo skalarni FK-ovi.
+            //  3. Hrvatski ("hr") prijevod je OBAVEZAN za sve šifarnike.
             // ----------------------------------------------------------
             entity.HasData(
                 // M — Muško / Male
                 new Translation
                 {
                     Id = TrMHrId, EntityType = "codebook_gender", EntityId = GenderMId,
-                    LanguageId = LangHrId, FieldName = "Name", Value = "Muško",
+                    LanguageCode = LangHr, FieldName = "Name", Value = "Muško",
                     CreatedAt = SeedDate, UpdatedAt = SeedDate,
                     CreatedBy = Guid.Empty, UpdatedBy = Guid.Empty
                 },
                 new Translation
                 {
                     Id = TrMEnId, EntityType = "codebook_gender", EntityId = GenderMId,
-                    LanguageId = LangEnId, FieldName = "Name", Value = "Male",
+                    LanguageCode = LangEn, FieldName = "Name", Value = "Male",
                     CreatedAt = SeedDate, UpdatedAt = SeedDate,
                     CreatedBy = Guid.Empty, UpdatedBy = Guid.Empty
                 },
@@ -192,14 +178,14 @@ public class CodebookDbContext : DbContext
                 new Translation
                 {
                     Id = TrFHrId, EntityType = "codebook_gender", EntityId = GenderFId,
-                    LanguageId = LangHrId, FieldName = "Name", Value = "Žensko",
+                    LanguageCode = LangHr, FieldName = "Name", Value = "Žensko",
                     CreatedAt = SeedDate, UpdatedAt = SeedDate,
                     CreatedBy = Guid.Empty, UpdatedBy = Guid.Empty
                 },
                 new Translation
                 {
                     Id = TrFEnId, EntityType = "codebook_gender", EntityId = GenderFId,
-                    LanguageId = LangEnId, FieldName = "Name", Value = "Female",
+                    LanguageCode = LangEn, FieldName = "Name", Value = "Female",
                     CreatedAt = SeedDate, UpdatedAt = SeedDate,
                     CreatedBy = Guid.Empty, UpdatedBy = Guid.Empty
                 },
@@ -207,14 +193,14 @@ public class CodebookDbContext : DbContext
                 new Translation
                 {
                     Id = TrOHrId, EntityType = "codebook_gender", EntityId = GenderOId,
-                    LanguageId = LangHrId, FieldName = "Name", Value = "Ostalo",
+                    LanguageCode = LangHr, FieldName = "Name", Value = "Ostalo",
                     CreatedAt = SeedDate, UpdatedAt = SeedDate,
                     CreatedBy = Guid.Empty, UpdatedBy = Guid.Empty
                 },
                 new Translation
                 {
                     Id = TrOEnId, EntityType = "codebook_gender", EntityId = GenderOId,
-                    LanguageId = LangEnId, FieldName = "Name", Value = "Other",
+                    LanguageCode = LangEn, FieldName = "Name", Value = "Other",
                     CreatedAt = SeedDate, UpdatedAt = SeedDate,
                     CreatedBy = Guid.Empty, UpdatedBy = Guid.Empty
                 }

@@ -9,9 +9,8 @@ public class GenderRepository : IGenderRepository
 {
     private readonly CodebookDbContext _db;
 
-    // Seed GUIDs za jezike — definirani u CodebookDbContext
-    private static readonly Guid HrId = new("b0000000-0000-0000-0000-000000000001");
-    private static readonly Guid EnId = new("b0000000-0000-0000-0000-000000000002");
+    private const string Hr = "hr";
+    private const string En = "en";
 
     public GenderRepository(CodebookDbContext db) => _db = db;
 
@@ -38,17 +37,17 @@ public class GenderRepository : IGenderRepository
                 Ordinal  = g.Ordinal,
                 // Fallback: prijevod → Code
                 NameHr = _db.Translations
-                    .Where(t => t.EntityType == "codebook_gender"
-                             && t.EntityId   == g.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType    == "codebook_gender"
+                             && t.EntityId      == g.Id
+                             && t.LanguageCode  == Hr
+                             && t.FieldName     == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault() ?? g.Code,
                 NameEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_gender"
-                             && t.EntityId   == g.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType    == "codebook_gender"
+                             && t.EntityId      == g.Id
+                             && t.LanguageCode  == En
+                             && t.FieldName     == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
             })
@@ -66,17 +65,17 @@ public class GenderRepository : IGenderRepository
                 IsActive = g.IsActive,
                 Ordinal  = g.Ordinal,
                 NameHr   = _db.Translations
-                    .Where(t => t.EntityType == "codebook_gender"
-                             && t.EntityId   == g.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType    == "codebook_gender"
+                             && t.EntityId      == g.Id
+                             && t.LanguageCode  == Hr
+                             && t.FieldName     == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault() ?? g.Code,
                 NameEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_gender"
-                             && t.EntityId   == g.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType    == "codebook_gender"
+                             && t.EntityId      == g.Id
+                             && t.LanguageCode  == En
+                             && t.FieldName     == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
             })

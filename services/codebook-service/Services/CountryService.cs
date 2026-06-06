@@ -10,8 +10,8 @@ public class CountryService : ICountryService
     private readonly ICountryRepository _repo;
     private readonly CodebookDbContext  _db;
 
-    private static readonly Guid HrId = new("b0000000-0000-0000-0000-000000000001");
-    private static readonly Guid EnId = new("b0000000-0000-0000-0000-000000000002");
+    private const string Hr = "hr";
+    private const string En = "en";
 
     public CountryService(ICountryRepository repo, CodebookDbContext db)
     {
@@ -90,27 +90,27 @@ public class CountryService : ICountryService
     private async Task UpsertTranslationsAsync(Guid countryId, string nameHr, string? nameEn,
         string? citizenshipHr, string? citizenshipEn)
     {
-        await UpsertOneAsync(countryId, HrId, "Name", nameHr);
+        await UpsertOneAsync(countryId, Hr, "Name", nameHr);
 
         if (!string.IsNullOrWhiteSpace(nameEn))
-            await UpsertOneAsync(countryId, EnId, "Name", nameEn);
+            await UpsertOneAsync(countryId, En, "Name", nameEn);
 
         if (!string.IsNullOrWhiteSpace(citizenshipHr))
-            await UpsertOneAsync(countryId, HrId, "Citizenship", citizenshipHr);
+            await UpsertOneAsync(countryId, Hr, "Citizenship", citizenshipHr);
 
         if (!string.IsNullOrWhiteSpace(citizenshipEn))
-            await UpsertOneAsync(countryId, EnId, "Citizenship", citizenshipEn);
+            await UpsertOneAsync(countryId, En, "Citizenship", citizenshipEn);
 
         await _db.SaveChangesAsync();
     }
 
-    private async Task UpsertOneAsync(Guid entityId, Guid languageId, string fieldName, string value)
+    private async Task UpsertOneAsync(Guid entityId, string languageCode, string fieldName, string value)
     {
         var existing = _db.Translations.FirstOrDefault(t =>
-            t.EntityType == "codebook_country" &&
-            t.EntityId   == entityId           &&
-            t.LanguageId == languageId         &&
-            t.FieldName  == fieldName);
+            t.EntityType   == "codebook_country" &&
+            t.EntityId     == entityId           &&
+            t.LanguageCode == languageCode       &&
+            t.FieldName    == fieldName);
 
         if (existing is not null)
         {
@@ -122,16 +122,16 @@ public class CountryService : ICountryService
         {
             _db.Translations.Add(new Translation
             {
-                Id         = Guid.NewGuid(),
-                EntityType = "codebook_country",
-                EntityId   = entityId,
-                LanguageId = languageId,
-                FieldName  = fieldName,
-                Value      = value,
-                CreatedAt  = DateTime.UtcNow,
-                UpdatedAt  = DateTime.UtcNow,
-                CreatedBy  = Guid.Empty,
-                UpdatedBy  = Guid.Empty
+                Id           = Guid.NewGuid(),
+                EntityType   = "codebook_country",
+                EntityId     = entityId,
+                LanguageCode = languageCode,
+                FieldName    = fieldName,
+                Value        = value,
+                CreatedAt    = DateTime.UtcNow,
+                UpdatedAt    = DateTime.UtcNow,
+                CreatedBy    = Guid.Empty,
+                UpdatedBy    = Guid.Empty
             });
         }
     }

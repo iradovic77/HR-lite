@@ -10,8 +10,8 @@ public class CountyService : ICountyService
     private readonly ICountyRepository _repo;
     private readonly CodebookDbContext _db;
 
-    private static readonly Guid HrId = new("b0000000-0000-0000-0000-000000000001");
-    private static readonly Guid EnId = new("b0000000-0000-0000-0000-000000000002");
+    private const string Hr = "hr";
+    private const string En = "en";
 
     public CountyService(ICountyRepository repo, CodebookDbContext db)
     {
@@ -91,21 +91,21 @@ public class CountyService : ICountyService
 
     private async Task UpsertTranslationsAsync(Guid countyId, string nameHr, string? nameEn)
     {
-        await UpsertOneAsync(countyId, HrId, "Name", nameHr);
+        await UpsertOneAsync(countyId, Hr, "Name", nameHr);
 
         if (!string.IsNullOrWhiteSpace(nameEn))
-            await UpsertOneAsync(countyId, EnId, "Name", nameEn);
+            await UpsertOneAsync(countyId, En, "Name", nameEn);
 
         await _db.SaveChangesAsync();
     }
 
-    private async Task UpsertOneAsync(Guid entityId, Guid languageId, string fieldName, string value)
+    private async Task UpsertOneAsync(Guid entityId, string languageCode, string fieldName, string value)
     {
         var existing = _db.Translations.FirstOrDefault(t =>
-            t.EntityType == "codebook_county" &&
-            t.EntityId   == entityId          &&
-            t.LanguageId == languageId        &&
-            t.FieldName  == fieldName);
+            t.EntityType   == "codebook_county" &&
+            t.EntityId     == entityId          &&
+            t.LanguageCode == languageCode      &&
+            t.FieldName    == fieldName);
 
         if (existing is not null)
         {
@@ -117,16 +117,16 @@ public class CountyService : ICountyService
         {
             _db.Translations.Add(new Translation
             {
-                Id         = Guid.NewGuid(),
-                EntityType = "codebook_county",
-                EntityId   = entityId,
-                LanguageId = languageId,
-                FieldName  = fieldName,
-                Value      = value,
-                CreatedAt  = DateTime.UtcNow,
-                UpdatedAt  = DateTime.UtcNow,
-                CreatedBy  = Guid.Empty,
-                UpdatedBy  = Guid.Empty
+                Id           = Guid.NewGuid(),
+                EntityType   = "codebook_county",
+                EntityId     = entityId,
+                LanguageCode = languageCode,
+                FieldName    = fieldName,
+                Value        = value,
+                CreatedAt    = DateTime.UtcNow,
+                UpdatedAt    = DateTime.UtcNow,
+                CreatedBy    = Guid.Empty,
+                UpdatedBy    = Guid.Empty
             });
         }
     }
