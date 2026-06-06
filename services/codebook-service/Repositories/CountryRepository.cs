@@ -16,37 +16,37 @@ public class CountryRepository : ICountryRepository
 
     public async Task<IEnumerable<CountryResponse>> GetAllAsync(bool includeInactive = false)
     {
-        var query = _db.Countries.AsQueryable();
-
-        if (!includeInactive)
-            query = query.Where(c => c.IsActive);
-
-        var countries = await query
+        var countries = await _db.Countries.AsQueryable()
+            .Where(c => includeInactive || c.IsActive)
             .OrderBy(c => c.Ordinal)
             .ThenBy(c => c.Code)
             .ToListAsync();
 
-        if (countries.Count == 0)
-            return [];
+        if (countries.Count == 0) return [];
 
         var ids = countries.Select(c => c.Id).ToList();
 
+        // Dohvat prijevoda bez EntityType filtra — EntityId (GUID) je globalno jedinstven.
+        // EntityType nije potreban za korektnost; njegova pogrešna vrijednost u bazi
+        // jedini je razlog zašto join može propasti.
         var translations = await _db.Translations
-            .Where(t => t.EntityType == "codebook_country" && ids.Contains(t.EntityId))
+            .Where(t => ids.Contains(t.EntityId))
             .ToListAsync();
 
         var lookup = translations.ToLookup(t => t.EntityId);
 
         return countries.Select(c =>
         {
-            var trans = lookup[c.Id];
+            var trans = lookup[c.Id].ToList();
             return new CountryResponse
             {
                 Id            = c.Id,
                 Code          = c.Code,
                 IsActive      = c.IsActive,
                 Ordinal       = c.Ordinal,
-                NameHr        = trans.FirstOrDefault(t => t.LanguageCode == Hr && t.FieldName == "Name")?.Value ?? c.Code,
+                NameHr        = trans.FirstOrDefault(t => t.LanguageCode == Hr && t.FieldName == "Name")?.Value
+                                ?? trans.FirstOrDefault(t => t.FieldName == "Name")?.Value
+                                ?? c.Code,
                 NameEn        = trans.FirstOrDefault(t => t.LanguageCode == En && t.FieldName == "Name")?.Value,
                 CitizenshipHr = trans.FirstOrDefault(t => t.LanguageCode == Hr && t.FieldName == "Citizenship")?.Value,
                 CitizenshipEn = trans.FirstOrDefault(t => t.LanguageCode == En && t.FieldName == "Citizenship")?.Value,
