@@ -13,6 +13,7 @@ import {
   type CountyResponse, type MunicipalityResponse, type CreateMunicipalityRequest,
 } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
+import { useTheme } from '@/context/ThemeContext'
 
 interface FormValues {
   code: string
@@ -26,6 +27,7 @@ interface FormValues {
 export default function MunicipalityPage() {
   const { t } = useTranslation()
   const { message, modal } = App.useApp()
+  const { isDark } = useTheme()
 
   const [data, setData]                 = useState<MunicipalityResponse[]>([])
   const [counties, setCounties]         = useState<CountyResponse[]>([])
@@ -243,6 +245,7 @@ export default function MunicipalityPage() {
         loading={loading}
         getRowId={(p) => p.data.id}
         getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
+        isDark={isDark}
       />
 
       <AppModal

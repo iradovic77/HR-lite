@@ -13,6 +13,7 @@ import {
   type MunicipalityResponse, type SettlementResponse, type CreateSettlementRequest,
 } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
+import { useTheme } from '@/context/ThemeContext'
 
 interface FormValues {
   code: string
@@ -26,6 +27,7 @@ interface FormValues {
 export default function SettlementPage() {
   const { t } = useTranslation()
   const { message, modal } = App.useApp()
+  const { isDark } = useTheme()
 
   const [data, setData]                             = useState<SettlementResponse[]>([])
   const [municipalities, setMunicipalities]         = useState<MunicipalityResponse[]>([])
@@ -243,6 +245,7 @@ export default function SettlementPage() {
         loading={loading}
         getRowId={(p) => p.data.id}
         getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
+        isDark={isDark}
       />
 
       <AppModal

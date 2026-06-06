@@ -22,6 +22,7 @@ export interface AgGridWrapperProps<T extends object> {
   pageSize?: number
   getRowId?: (params: GetRowIdParams<T>) => string
   getRowStyle?: (params: RowClassParams<T>) => RowStyle | undefined
+  isDark: boolean
 }
 
 export default function AgGridWrapper<T extends object>({
@@ -31,6 +32,7 @@ export default function AgGridWrapper<T extends object>({
   pageSize: defaultPageSize = 20,
   getRowId,
   getRowStyle,
+  isDark,
 }: AgGridWrapperProps<T>) {
   const gridRef = useRef<AgGridReact<T>>(null)
   const { token } = antTheme.useToken()
@@ -86,25 +88,12 @@ export default function AgGridWrapper<T extends object>({
 
       <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
         <div
-          className="ag-theme-quartz"
+          className={isDark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}
           style={{
             position: 'absolute',
             top: 0, right: 0, bottom: 0, left: 0,
-            '--ag-background-color':             token.colorBgContainer,
-            '--ag-odd-row-background-color':     token.colorBgContainer,
-            '--ag-header-background-color':      token.colorFillAlter,
-            '--ag-border-color':                 token.colorBorderSecondary,
-            '--ag-row-border-color':             token.colorBorderSecondary,
-            '--ag-foreground-color':             token.colorText,
-            '--ag-secondary-foreground-color':   token.colorTextSecondary,
-            '--ag-header-foreground-color':      token.colorText,
-            '--ag-active-color':                 token.colorPrimary,
-            '--ag-row-hover-color':              token.controlItemBgHover,
-            '--ag-selected-row-background-color': token.colorPrimaryBg,
-            '--ag-font-family':                  token.fontFamily,
-            '--ag-font-size':                    '13px',
-            '--ag-input-focus-border-color':     token.colorPrimaryBorder,
-            '--ag-checkbox-unchecked-color':     token.colorBorder,
+            '--ag-active-color': token.colorPrimary,
+            '--ag-font-size': '13px',
           } as React.CSSProperties}
         >
           <AgGridReact<T>

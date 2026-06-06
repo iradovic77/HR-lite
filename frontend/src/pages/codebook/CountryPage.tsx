@@ -10,12 +10,14 @@ import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined
 import type { ColDef, ICellRendererParams } from 'ag-grid-community'
 import { countryApi, type CountryResponse, type CreateCountryRequest } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
+import { useTheme } from '@/context/ThemeContext'
 
 type FormValues = Omit<CountryResponse, 'id'>
 
 export default function CountryPage() {
   const { t } = useTranslation()
   const { message, modal } = App.useApp()
+  const { isDark } = useTheme()
 
   const [data, setData]               = useState<CountryResponse[]>([])
   const [loading, setLoading]         = useState(false)
@@ -196,6 +198,7 @@ export default function CountryPage() {
         loading={loading}
         getRowId={(p) => p.data.id}
         getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
+        isDark={isDark}
       />
 
       <AppModal
