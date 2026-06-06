@@ -34,7 +34,6 @@ export default function AgGridWrapper<T extends object>({
 }: AgGridWrapperProps<T>) {
   const gridRef = useRef<AgGridReact<T>>(null)
   const { token } = antTheme.useToken()
-  const isDark = token.colorBgBase === '#000'
   const { i18n } = useTranslation()
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -43,7 +42,6 @@ export default function AgGridWrapper<T extends object>({
 
   const localeText = i18n.language === 'hr' ? AG_GRID_LOCALE_HR : AG_GRID_LOCALE_EN
 
-  // Reset to page 1 whenever the data set changes (filter, onlyActive toggle, etc.)
   useEffect(() => {
     setCurrentPage(1)
     gridRef.current?.api?.paginationGoToPage(0)
@@ -83,20 +81,30 @@ export default function AgGridWrapper<T extends object>({
     []
   )
 
-  const themeClass = isDark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'
-
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
 
-      {/* Grid area — position:relative so AG Grid's height:100% resolves correctly */}
       <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
         <div
-          className={themeClass}
+          className="ag-theme-quartz"
           style={{
             position: 'absolute',
             top: 0, right: 0, bottom: 0, left: 0,
-            '--ag-active-color': token.colorPrimary,
-            '--ag-font-size': '13px',
+            '--ag-background-color':             token.colorBgContainer,
+            '--ag-odd-row-background-color':     token.colorBgContainer,
+            '--ag-header-background-color':      token.colorFillAlter,
+            '--ag-border-color':                 token.colorBorderSecondary,
+            '--ag-row-border-color':             token.colorBorderSecondary,
+            '--ag-foreground-color':             token.colorText,
+            '--ag-secondary-foreground-color':   token.colorTextSecondary,
+            '--ag-header-foreground-color':      token.colorText,
+            '--ag-active-color':                 token.colorPrimary,
+            '--ag-row-hover-color':              token.controlItemBgHover,
+            '--ag-selected-row-background-color': token.colorPrimaryBg,
+            '--ag-font-family':                  token.fontFamily,
+            '--ag-font-size':                    '13px',
+            '--ag-input-focus-border-color':     token.colorPrimaryBorder,
+            '--ag-checkbox-unchecked-color':     token.colorBorder,
           } as React.CSSProperties}
         >
           <AgGridReact<T>
@@ -118,7 +126,6 @@ export default function AgGridWrapper<T extends object>({
         </div>
       </div>
 
-      {/* Bottom bar: export buttons (left) + pagination (right) */}
       <div style={{
         flexShrink: 0,
         display: 'flex',
