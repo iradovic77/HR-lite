@@ -22,6 +22,7 @@ interface FormValues {
   municipalityId?: string | null
   ordinal: number
   isActive: boolean
+  postalNumber?: string | null
 }
 
 export default function SettlementPage() {
@@ -83,6 +84,7 @@ export default function SettlementPage() {
       municipalityId: item.municipalityId,
       ordinal: item.ordinal,
       isActive: item.isActive,
+      postalNumber: item.postalNumber,
     })
     setModalOpen(true)
   }
@@ -175,6 +177,12 @@ export default function SettlementPage() {
       field: 'nameEn',
       headerName: t('codebook.city.columns.nameEn'),
       flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
+    },
+    {
+      field: 'postalNumber',
+      headerName: t('codebook.city.columns.postalNumber'),
+      width: 130,
       valueFormatter: (p) => p.value ?? '—',
     },
     {
@@ -307,6 +315,9 @@ export default function SettlementPage() {
           </Form.Item>
           <Form.Item name="nameEn" label={t('codebook.city.modal.nameEn')}>
             <Input maxLength={200} />
+          </Form.Item>
+          <Form.Item name="postalNumber" label={t('codebook.city.modal.postalNumber')}>
+            <Input maxLength={20} />
           </Form.Item>
           <Form.Item name="municipalityId" label={t('codebook.city.modal.municipality')}>
             <Select

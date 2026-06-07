@@ -183,6 +183,7 @@
         "code": "Code",
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
+        "postalNumber": "Postal code",
         "municipality": "Municipality",
         "county": "County",
         "country": "Country",
@@ -204,6 +205,7 @@
         "code_hint": "City/settlement code",
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
+        "postalNumber": "Postal code",
         "municipality": "Municipality",
         "ordinal": "Order",
         "isActive": "Active"

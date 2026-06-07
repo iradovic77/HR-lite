@@ -293,6 +293,7 @@ public class CodebookDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Ordinal).HasDefaultValue(0);
             entity.Property(e => e.MunicipalityId).IsRequired(false);
+            entity.Property(e => e.PostalNumber).HasMaxLength(20).IsRequired(false);
         });
     }
 }

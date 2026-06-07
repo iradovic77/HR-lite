@@ -34,6 +34,7 @@ public class SettlementService : ISettlementService
             IsActive       = req.IsActive,
             Ordinal        = req.Ordinal,
             MunicipalityId = req.MunicipalityId,
+            PostalNumber   = req.PostalNumber,
             CreatedAt      = DateTime.UtcNow,
             UpdatedAt      = DateTime.UtcNow,
             CreatedBy      = Guid.Empty,
@@ -55,6 +56,7 @@ public class SettlementService : ISettlementService
         settlement.IsActive       = req.IsActive;
         settlement.Ordinal        = req.Ordinal;
         settlement.MunicipalityId = req.MunicipalityId;
+        settlement.PostalNumber   = req.PostalNumber;
         settlement.UpdatedAt      = DateTime.UtcNow;
         settlement.UpdatedBy      = Guid.Empty;
 

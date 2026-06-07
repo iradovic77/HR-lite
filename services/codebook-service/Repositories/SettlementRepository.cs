@@ -40,6 +40,7 @@ public class SettlementRepository : ISettlementRepository
                 IsActive       = s.IsActive,
                 Ordinal        = s.Ordinal,
                 MunicipalityId = s.MunicipalityId,
+                PostalNumber   = s.PostalNumber,
                 NameHr         = _db.Translations
                     .Where(t => t.EntityType   == "codebook_settlement"
                              && t.EntityId     == s.Id
@@ -95,6 +96,7 @@ public class SettlementRepository : ISettlementRepository
                 IsActive       = s.IsActive,
                 Ordinal        = s.Ordinal,
                 MunicipalityId = s.MunicipalityId,
+                PostalNumber   = s.PostalNumber,
                 NameHr         = _db.Translations
                     .Where(t => t.EntityType   == "codebook_settlement"
                              && t.EntityId     == s.Id

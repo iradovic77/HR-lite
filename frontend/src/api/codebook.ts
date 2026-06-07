@@ -203,6 +203,7 @@ export interface SettlementResponse {
   municipalityNameHr: string | null
   countyNameHr: string | null
   countryNameHr: string | null
+  postalNumber: string | null
 }
 
 export interface CreateSettlementRequest {
@@ -212,6 +213,7 @@ export interface CreateSettlementRequest {
   municipalityId?: string | null
   ordinal: number
   isActive: boolean
+  postalNumber?: string | null
 }
 
 export interface UpdateSettlementRequest {
@@ -221,6 +223,7 @@ export interface UpdateSettlementRequest {
   municipalityId?: string | null
   ordinal: number
   isActive: boolean
+  postalNumber?: string | null
 }
 
 export const settlementApi = {
