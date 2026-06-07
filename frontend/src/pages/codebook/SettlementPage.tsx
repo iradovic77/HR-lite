@@ -222,6 +222,10 @@ export default function SettlementPage() {
       extra={
         <Space>
           <Select
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+            }
             allowClear
             placeholder={t('codebook.city.filter_municipality')}
             value={municipalityFilter}
@@ -278,7 +282,14 @@ export default function SettlementPage() {
             <Input maxLength={200} />
           </Form.Item>
           <Form.Item name="municipalityId" label={t('codebook.city.modal.municipality')}>
-            <Select allowClear options={municipalityOptions} />
+            <Select
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+              allowClear
+              options={municipalityOptions}
+            />
           </Form.Item>
           <Form.Item name="ordinal" label={t('codebook.city.modal.ordinal')}>
             <InputNumber min={0} style={{ width: '100%' }} />

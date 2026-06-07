@@ -222,6 +222,10 @@ export default function MunicipalityPage() {
       extra={
         <Space>
           <Select
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+            }
             allowClear
             placeholder={t('codebook.municipality.filter_county')}
             value={countyFilter}
@@ -278,7 +282,14 @@ export default function MunicipalityPage() {
             <Input maxLength={200} />
           </Form.Item>
           <Form.Item name="countyId" label={t('codebook.municipality.modal.county')}>
-            <Select allowClear options={countyOptions} />
+            <Select
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+              allowClear
+              options={countyOptions}
+            />
           </Form.Item>
           <Form.Item name="ordinal" label={t('codebook.municipality.modal.ordinal')}>
             <InputNumber min={0} style={{ width: '100%' }} />
