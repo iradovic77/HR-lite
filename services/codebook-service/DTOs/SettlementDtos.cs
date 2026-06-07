@@ -13,6 +13,8 @@ public class SettlementResponse
     public bool    IsActive            { get; set; }
     public Guid?   MunicipalityId      { get; set; }
     public string? MunicipalityNameHr  { get; set; }
+    public string? CountyNameHr        { get; set; }
+    public string? CountryNameHr       { get; set; }
 }
 
 /// <summary>Zahtjev za kreiranje novog Settlement zapisa.</summary>

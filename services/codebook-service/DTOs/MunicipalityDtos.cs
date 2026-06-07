@@ -13,6 +13,7 @@ public class MunicipalityResponse
     public bool    IsActive      { get; set; }
     public Guid?   CountyId      { get; set; }
     public string? CountyNameHr  { get; set; }
+    public string? CountryNameHr { get; set; }
     public string? JOPPDCode     { get; set; }
 }
 

@@ -60,6 +60,20 @@ public class SettlementRepository : ISettlementRepository
                              && t.LanguageCode == Hr
                              && t.FieldName    == "Name")
                     .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CountyNameHr = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_county"
+                             && t.EntityId     == municipality.CountyId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
+                    .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CountryNameHr = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == county.CountryId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
+                    .Select(t => t.Value)
                     .FirstOrDefault()
             }
         ).ToListAsync();
@@ -67,9 +81,14 @@ public class SettlementRepository : ISettlementRepository
 
     public async Task<SettlementResponse?> GetByIdAsync(Guid id)
     {
-        return await _db.Settlements
-            .Where(s => s.Id == id)
-            .Select(s => new SettlementResponse
+        return await (
+            from s in _db.Settlements
+            where s.Id == id
+            join municipality in _db.Municipalities on s.MunicipalityId equals municipality.Id into mg
+            from municipality in mg.DefaultIfEmpty()
+            join county in _db.Counties on municipality.CountyId equals county.Id into cg
+            from county in cg.DefaultIfEmpty()
+            select new SettlementResponse
             {
                 Id             = s.Id,
                 Code           = s.Code,
@@ -96,9 +115,23 @@ public class SettlementRepository : ISettlementRepository
                              && t.LanguageCode == Hr
                              && t.FieldName    == "Name")
                     .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CountyNameHr = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_county"
+                             && t.EntityId     == municipality.CountyId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
+                    .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CountryNameHr = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == county.CountryId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
+                    .Select(t => t.Value)
                     .FirstOrDefault()
-            })
-            .FirstOrDefaultAsync();
+            }
+        ).FirstOrDefaultAsync();
     }
 
     public async Task<Settlement?> GetEntityByIdAsync(Guid id)

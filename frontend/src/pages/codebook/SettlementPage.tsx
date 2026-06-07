@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Button, Tag, Space, Form, Input, Select,
-  InputNumber, Switch, App, Tooltip, Checkbox,
+  InputNumber, Switch, App, Tooltip, Checkbox, theme as antTheme,
 } from 'antd'
 import AppModal from '@/components/AppModal'
 import AgGridWrapper from '@/components/AgGridWrapper'
@@ -28,6 +28,7 @@ export default function SettlementPage() {
   const { t } = useTranslation()
   const { message, modal } = App.useApp()
   const { isDark } = useTheme()
+  const { token } = antTheme.useToken()
 
   const [data, setData]                             = useState<SettlementResponse[]>([])
   const [municipalities, setMunicipalities]         = useState<MunicipalityResponse[]>([])
@@ -150,7 +151,12 @@ export default function SettlementPage() {
   }
 
   const municipalityOptions = useMemo(
-    () => municipalities.map(m => ({ value: m.id, label: m.nameHr })),
+    () => municipalities.map(m => ({
+      value: m.id,
+      label: m.nameHr,
+      countyName: m.countyNameHr ?? '',
+      countryName: m.countryNameHr ?? '',
+    })),
     [municipalities]
   )
 
@@ -178,6 +184,18 @@ export default function SettlementPage() {
       valueFormatter: (p) => p.value ?? '—',
       sort: 'asc',
       sortIndex: 0,
+    },
+    {
+      field: 'countyNameHr',
+      headerName: t('codebook.city.columns.county'),
+      flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
+    },
+    {
+      field: 'countryNameHr',
+      headerName: t('codebook.city.columns.country'),
+      flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
     },
     {
       field: 'ordinal',
@@ -293,11 +311,29 @@ export default function SettlementPage() {
           <Form.Item name="municipalityId" label={t('codebook.city.modal.municipality')}>
             <Select
               showSearch
-              filterOption={(input, option) =>
-                (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
-              }
+              filterOption={(input, option) => {
+                const s = input.toLowerCase()
+                type Opt = { countyName?: string; countryName?: string }
+                const o = option as Opt
+                return (
+                  (option?.label as string)?.toLowerCase().includes(s) ||
+                  o?.countyName?.toLowerCase().includes(s) === true ||
+                  o?.countryName?.toLowerCase().includes(s) === true
+                )
+              }}
               allowClear
               options={municipalityOptions}
+              optionRender={(option) => {
+                const sub = [option.data.countyName, option.data.countryName].filter(Boolean).join(' · ')
+                return (
+                  <div>
+                    <div>{option.data.label}</div>
+                    {sub && (
+                      <div style={{ color: token.colorTextSecondary, fontSize: 11 }}>{sub}</div>
+                    )}
+                  </div>
+                )
+              }}
             />
           </Form.Item>
           <Form.Item name="ordinal" label={t('codebook.city.modal.ordinal')}>

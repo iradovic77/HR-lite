@@ -149,6 +149,7 @@ export interface MunicipalityResponse {
   isActive: boolean
   countyId: string | null
   countyNameHr: string | null
+  countryNameHr: string | null
   joppdCode: string | null
 }
 
@@ -200,6 +201,8 @@ export interface SettlementResponse {
   isActive: boolean
   municipalityId: string | null
   municipalityNameHr: string | null
+  countyNameHr: string | null
+  countryNameHr: string | null
 }
 
 export interface CreateSettlementRequest {

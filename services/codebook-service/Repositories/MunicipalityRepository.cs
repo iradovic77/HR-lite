@@ -59,6 +59,13 @@ public class MunicipalityRepository : IMunicipalityRepository
                              && t.LanguageCode == Hr
                              && t.FieldName    == "Name")
                     .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CountryNameHr = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == county.CountryId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
+                    .Select(t => t.Value)
                     .FirstOrDefault()
             }
         ).ToListAsync();
@@ -66,9 +73,12 @@ public class MunicipalityRepository : IMunicipalityRepository
 
     public async Task<MunicipalityResponse?> GetByIdAsync(Guid id)
     {
-        return await _db.Municipalities
-            .Where(m => m.Id == id)
-            .Select(m => new MunicipalityResponse
+        return await (
+            from m in _db.Municipalities
+            where m.Id == id
+            join county in _db.Counties on m.CountyId equals county.Id into cg
+            from county in cg.DefaultIfEmpty()
+            select new MunicipalityResponse
             {
                 Id        = m.Id,
                 Code      = m.Code,
@@ -96,9 +106,16 @@ public class MunicipalityRepository : IMunicipalityRepository
                              && t.LanguageCode == Hr
                              && t.FieldName    == "Name")
                     .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CountryNameHr = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == county.CountryId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
+                    .Select(t => t.Value)
                     .FirstOrDefault()
-            })
-            .FirstOrDefaultAsync();
+            }
+        ).FirstOrDefaultAsync();
     }
 
     public async Task<Municipality?> GetEntityByIdAsync(Guid id)
