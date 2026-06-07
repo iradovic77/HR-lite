@@ -144,6 +144,7 @@
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
         "county": "Županija",
+        "country": "Država",
         "ordinal": "Redoslijed",
         "status": "Status",
         "actions": "Akcije"
@@ -183,6 +184,8 @@
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
         "municipality": "Općina",
+        "county": "Županija",
+        "country": "Država",
         "ordinal": "Redoslijed",
         "status": "Status",
         "actions": "Akcije"

@@ -144,6 +144,7 @@
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
         "county": "County",
+        "country": "Country",
         "ordinal": "Order",
         "status": "Status",
         "actions": "Actions"
@@ -183,6 +184,8 @@
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
         "municipality": "Municipality",
+        "county": "County",
+        "country": "Country",
         "ordinal": "Order",
         "status": "Status",
         "actions": "Actions"
