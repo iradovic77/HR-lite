@@ -34,6 +34,7 @@ public class MunicipalityService : IMunicipalityService
             IsActive  = req.IsActive,
             Ordinal   = req.Ordinal,
             CountyId  = req.CountyId,
+            JOPPDCode = req.JOPPDCode,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             CreatedBy = Guid.Empty,
@@ -55,6 +56,7 @@ public class MunicipalityService : IMunicipalityService
         municipality.IsActive  = req.IsActive;
         municipality.Ordinal   = req.Ordinal;
         municipality.CountyId  = req.CountyId;
+        municipality.JOPPDCode = req.JOPPDCode;
         municipality.UpdatedAt = DateTime.UtcNow;
         municipality.UpdatedBy = Guid.Empty;
 

@@ -279,6 +279,7 @@ public class CodebookDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Ordinal).HasDefaultValue(0);
             entity.Property(e => e.CountyId).IsRequired(false);
+            entity.Property(e => e.JOPPDCode).HasMaxLength(20).IsRequired(false);
         });
     }
 

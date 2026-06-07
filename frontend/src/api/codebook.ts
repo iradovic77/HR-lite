@@ -149,6 +149,7 @@ export interface MunicipalityResponse {
   isActive: boolean
   countyId: string | null
   countyNameHr: string | null
+  joppdCode: string | null
 }
 
 export interface CreateMunicipalityRequest {
@@ -158,6 +159,7 @@ export interface CreateMunicipalityRequest {
   countyId?: string | null
   ordinal: number
   isActive: boolean
+  joppdCode?: string | null
 }
 
 export interface UpdateMunicipalityRequest {
@@ -167,6 +169,7 @@ export interface UpdateMunicipalityRequest {
   countyId?: string | null
   ordinal: number
   isActive: boolean
+  joppdCode?: string | null
 }
 
 export const municipalityApi = {

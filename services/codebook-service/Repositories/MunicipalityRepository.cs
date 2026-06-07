@@ -33,12 +33,13 @@ public class MunicipalityRepository : IMunicipalityRepository
             orderby country.Ordinal, county.Ordinal, m.Ordinal, m.Code
             select new MunicipalityResponse
             {
-                Id       = m.Id,
-                Code     = m.Code,
-                IsActive = m.IsActive,
-                Ordinal  = m.Ordinal,
-                CountyId = m.CountyId,
-                NameHr   = _db.Translations
+                Id        = m.Id,
+                Code      = m.Code,
+                IsActive  = m.IsActive,
+                Ordinal   = m.Ordinal,
+                CountyId  = m.CountyId,
+                JOPPDCode = m.JOPPDCode,
+                NameHr    = _db.Translations
                     .Where(t => t.EntityType   == "codebook_municipality"
                              && t.EntityId     == m.Id
                              && t.LanguageCode == Hr
@@ -69,12 +70,13 @@ public class MunicipalityRepository : IMunicipalityRepository
             .Where(m => m.Id == id)
             .Select(m => new MunicipalityResponse
             {
-                Id       = m.Id,
-                Code     = m.Code,
-                IsActive = m.IsActive,
-                Ordinal  = m.Ordinal,
-                CountyId = m.CountyId,
-                NameHr   = _db.Translations
+                Id        = m.Id,
+                Code      = m.Code,
+                IsActive  = m.IsActive,
+                Ordinal   = m.Ordinal,
+                CountyId  = m.CountyId,
+                JOPPDCode = m.JOPPDCode,
+                NameHr    = _db.Translations
                     .Where(t => t.EntityType   == "codebook_municipality"
                              && t.EntityId     == m.Id
                              && t.LanguageCode == Hr

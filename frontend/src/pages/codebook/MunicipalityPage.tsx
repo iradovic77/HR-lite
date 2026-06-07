@@ -22,6 +22,7 @@ interface FormValues {
   countyId?: string | null
   ordinal: number
   isActive: boolean
+  joppdCode?: string | null
 }
 
 export default function MunicipalityPage() {
@@ -79,6 +80,7 @@ export default function MunicipalityPage() {
       countyId: item.countyId,
       ordinal: item.ordinal,
       isActive: item.isActive,
+      joppdCode: item.joppdCode,
     })
     setModalOpen(true)
   }
@@ -175,6 +177,12 @@ export default function MunicipalityPage() {
       valueFormatter: (p) => p.value ?? '—',
       sort: 'asc',
       sortIndex: 0,
+    },
+    {
+      field: 'joppdCode',
+      headerName: 'JOPPD',
+      width: 110,
+      valueFormatter: (p) => p.value ?? '—',
     },
     {
       field: 'ordinal',
@@ -283,6 +291,9 @@ export default function MunicipalityPage() {
           </Form.Item>
           <Form.Item name="nameEn" label={t('codebook.municipality.modal.nameEn')}>
             <Input maxLength={200} />
+          </Form.Item>
+          <Form.Item name="joppdCode" label="JOPPD šifra">
+            <Input maxLength={20} />
           </Form.Item>
           <Form.Item name="countyId" label={t('codebook.municipality.modal.county')}>
             <Select
