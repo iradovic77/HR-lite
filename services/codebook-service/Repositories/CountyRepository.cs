@@ -24,17 +24,19 @@ public class CountyRepository : ICountyRepository
         if (countryId.HasValue)
             query = query.Where(c => c.CountryId == countryId.Value);
 
-        return await query
-            .OrderBy(c => c.Ordinal)
-            .ThenBy(c => c.Code)
-            .Select(c => new CountyResponse
+        return await (
+            from c in query
+            join country in _db.Countries on c.CountryId equals country.Id into cg
+            from country in cg.DefaultIfEmpty()
+            orderby country.Ordinal, c.Ordinal, c.Code
+            select new CountyResponse
             {
-                Id       = c.Id,
-                Code     = c.Code,
-                IsActive = c.IsActive,
-                Ordinal  = c.Ordinal,
+                Id        = c.Id,
+                Code      = c.Code,
+                IsActive  = c.IsActive,
+                Ordinal   = c.Ordinal,
                 CountryId = c.CountryId,
-                NameHr   = _db.Translations
+                NameHr    = _db.Translations
                     .Where(t => t.EntityType   == "codebook_county"
                              && t.EntityId     == c.Id
                              && t.LanguageCode == Hr
@@ -55,8 +57,8 @@ public class CountyRepository : ICountyRepository
                              && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
-            })
-            .ToListAsync();
+            }
+        ).ToListAsync();
     }
 
     public async Task<CountyResponse?> GetByIdAsync(Guid id)

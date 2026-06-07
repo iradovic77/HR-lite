@@ -173,12 +173,15 @@ export default function MunicipalityPage() {
       headerName: t('codebook.municipality.columns.county'),
       flex: 1,
       valueFormatter: (p) => p.value ?? '—',
+      sort: 'asc',
+      sortIndex: 0,
     },
     {
       field: 'ordinal',
       headerName: t('codebook.municipality.columns.ordinal'),
       width: 120,
       sort: 'asc',
+      sortIndex: 1,
     },
     {
       field: 'isActive',

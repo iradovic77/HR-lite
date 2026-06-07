@@ -173,12 +173,15 @@ export default function SettlementPage() {
       headerName: t('codebook.city.columns.municipality'),
       flex: 1,
       valueFormatter: (p) => p.value ?? '—',
+      sort: 'asc',
+      sortIndex: 0,
     },
     {
       field: 'ordinal',
       headerName: t('codebook.city.columns.ordinal'),
       width: 120,
       sort: 'asc',
+      sortIndex: 1,
     },
     {
       field: 'isActive',

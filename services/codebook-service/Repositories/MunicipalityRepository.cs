@@ -24,10 +24,14 @@ public class MunicipalityRepository : IMunicipalityRepository
         if (countyId.HasValue)
             query = query.Where(m => m.CountyId == countyId.Value);
 
-        return await query
-            .OrderBy(m => m.Ordinal)
-            .ThenBy(m => m.Code)
-            .Select(m => new MunicipalityResponse
+        return await (
+            from m in query
+            join county in _db.Counties on m.CountyId equals county.Id into cg
+            from county in cg.DefaultIfEmpty()
+            join country in _db.Countries on county.CountryId equals country.Id into crg
+            from country in crg.DefaultIfEmpty()
+            orderby country.Ordinal, county.Ordinal, m.Ordinal, m.Code
+            select new MunicipalityResponse
             {
                 Id       = m.Id,
                 Code     = m.Code,
@@ -55,8 +59,8 @@ public class MunicipalityRepository : IMunicipalityRepository
                              && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
-            })
-            .ToListAsync();
+            }
+        ).ToListAsync();
     }
 
     public async Task<MunicipalityResponse?> GetByIdAsync(Guid id)

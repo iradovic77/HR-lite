@@ -24,10 +24,16 @@ public class SettlementRepository : ISettlementRepository
         if (municipalityId.HasValue)
             query = query.Where(s => s.MunicipalityId == municipalityId.Value);
 
-        return await query
-            .OrderBy(s => s.Ordinal)
-            .ThenBy(s => s.Code)
-            .Select(s => new SettlementResponse
+        return await (
+            from s in query
+            join municipality in _db.Municipalities on s.MunicipalityId equals municipality.Id into mg
+            from municipality in mg.DefaultIfEmpty()
+            join county in _db.Counties on municipality.CountyId equals county.Id into cg
+            from county in cg.DefaultIfEmpty()
+            join country in _db.Countries on county.CountryId equals country.Id into crg
+            from country in crg.DefaultIfEmpty()
+            orderby country.Ordinal, county.Ordinal, municipality.Ordinal, s.Ordinal, s.Code
+            select new SettlementResponse
             {
                 Id             = s.Id,
                 Code           = s.Code,
@@ -55,8 +61,8 @@ public class SettlementRepository : ISettlementRepository
                              && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
-            })
-            .ToListAsync();
+            }
+        ).ToListAsync();
     }
 
     public async Task<SettlementResponse?> GetByIdAsync(Guid id)
