@@ -88,12 +88,14 @@ export default function AgGridWrapper<T extends object>({
 
       <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
         <div
-          className={`${isDark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'} ag-column-separator ag-row-stripes`}
+          className={isDark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}
           style={{
             position: 'absolute',
             top: 0, right: 0, bottom: 0, left: 0,
             '--ag-active-color': token.colorPrimary,
             '--ag-font-size': '13px',
+            '--ag-odd-row-background-color': isDark ? '#243044' : token.colorFillAlter,
+            '--ag-cell-horizontal-border': `solid 1px ${isDark ? '#374151' : token.colorBorderSecondary}`,
           } as React.CSSProperties}
         >
           <AgGridReact<T>
