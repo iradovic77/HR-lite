@@ -1,18 +1,19 @@
-/* AG Grid — vertikalne linije između kolona */
+/* AG Grid — vertikalne linije između kolona (light) */
 .ag-theme-quartz .ag-cell {
     border-right: 1px solid #e0e0e0 !important;
 }
 
-/* AG Grid — zebra sjenčanje redaka */
+/* AG Grid — zebra sjenčanje redaka (light) */
 .ag-theme-quartz .ag-row-odd {
     background-color: #f8f9fa !important;
 }
 
-/* AG Grid — tamna tema */
+/* AG Grid — vertikalne linije između kolona (dark) */
 .ag-theme-quartz-dark .ag-cell {
-    border-right: 1px solid #444 !important;
+    border-right: 1px solid #374151 !important;
 }
 
+/* AG Grid — zebra sjenčanje redaka (dark) */
 .ag-theme-quartz-dark .ag-row-odd {
-    background-color: #2a2a2a !important;
+    background-color: #243044 !important;
 }
