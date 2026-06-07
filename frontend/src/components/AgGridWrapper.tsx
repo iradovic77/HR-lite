@@ -13,12 +13,15 @@ import { DownloadOutlined, FileExcelOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import * as XLSX from 'xlsx'
 import { AG_GRID_LOCALE_HR, AG_GRID_LOCALE_EN } from '@/i18n/agGridLocales'
+import { generateExportFileName } from '@/utils/exportFileName'
 
 export interface AgGridWrapperProps<T extends object> {
   columnDefs: ColDef<T>[]
   rowData: T[] | null | undefined
   loading?: boolean
   error?: string | null
+  exportModule?: string
+  exportEntity?: string
   pageSize?: number
   getRowId?: (params: GetRowIdParams<T>) => string
   getRowStyle?: (params: RowClassParams<T>) => RowStyle | undefined
@@ -30,6 +33,8 @@ export default function AgGridWrapper<T extends object>({
   rowData,
   loading,
   error,
+  exportModule = 'Export',
+  exportEntity = 'Data',
   pageSize: defaultPageSize = 20,
   getRowId,
   getRowStyle,
@@ -80,15 +85,17 @@ export default function AgGridWrapper<T extends object>({
   }
 
   const handleCsvExport = () => {
-    gridRef.current?.api.exportDataAsCsv()
+    const fileName = generateExportFileName(exportModule, exportEntity)
+    gridRef.current?.api.exportDataAsCsv({ fileName: `${fileName}.csv` })
   }
 
   const handleExcelExport = () => {
     const api = gridRef.current?.api
     if (!api) return
+    const fileName = generateExportFileName(exportModule, exportEntity)
     const csv = api.getDataAsCsv() ?? ''
     const wb = XLSX.read(csv, { type: 'string' })
-    XLSX.writeFile(wb, 'izvoz.xlsx')
+    XLSX.writeFile(wb, `${fileName}.xlsx`)
   }
 
   const defaultColDef = useMemo<ColDef>(

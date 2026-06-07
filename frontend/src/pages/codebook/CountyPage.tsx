@@ -32,6 +32,7 @@ export default function CountyPage() {
   const [data, setData]                   = useState<CountyResponse[]>([])
   const [countries, setCountries]         = useState<CountryResponse[]>([])
   const [loading, setLoading]             = useState(false)
+  const [fetchError, setFetchError]       = useState<string | null>(null)
   const [onlyActive, setOnlyActive]       = useState(true)
   const [countryFilter, setCountryFilter] = useState<string | null>(null)
   const [modalOpen, setModalOpen]         = useState(false)
@@ -48,11 +49,13 @@ export default function CountyPage() {
 
   const fetchData = async () => {
     setLoading(true)
+    setFetchError(null)
     try {
       const res = await countyApi.getAll(true, countryFilter)
-      setData(res.data)
-    } catch {
-      message.error('Greška pri dohvatu podataka')
+      setData(Array.isArray(res.data) ? res.data : [])
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      setFetchError(status ? `Servis vratio grešku HTTP ${status}.` : 'Servis nije dostupan ili je vratio neispravne podatke.')
     } finally {
       setLoading(false)
     }
@@ -250,6 +253,9 @@ export default function CountyPage() {
         columnDefs={columnDefs}
         rowData={filteredData}
         loading={loading}
+        error={fetchError}
+        exportModule="Codebook"
+        exportEntity="County"
         getRowId={(p) => p.data.id}
         getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
         isDark={isDark}

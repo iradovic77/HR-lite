@@ -21,6 +21,7 @@ export default function CountryPage() {
 
   const [data, setData]               = useState<CountryResponse[]>([])
   const [loading, setLoading]         = useState(false)
+  const [fetchError, setFetchError]   = useState<string | null>(null)
   const [onlyActive, setOnlyActive]   = useState(true)
   const [modalOpen, setModalOpen]     = useState(false)
   const [saving, setSaving]           = useState(false)
@@ -29,11 +30,13 @@ export default function CountryPage() {
 
   const fetchData = async () => {
     setLoading(true)
+    setFetchError(null)
     try {
       const res = await countryApi.getAll(true)
-      setData(res.data)
-    } catch {
-      message.error('Greška pri dohvatu podataka')
+      setData(Array.isArray(res.data) ? res.data : [])
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      setFetchError(status ? `Servis vratio grešku HTTP ${status}.` : 'Servis nije dostupan ili je vratio neispravne podatke.')
     } finally {
       setLoading(false)
     }
@@ -208,6 +211,9 @@ export default function CountryPage() {
         columnDefs={columnDefs}
         rowData={filteredData}
         loading={loading}
+        error={fetchError}
+        exportModule="Codebook"
+        exportEntity="Country"
         getRowId={(p) => p.data.id}
         getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
         isDark={isDark}
