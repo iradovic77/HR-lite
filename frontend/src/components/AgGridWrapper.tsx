@@ -1,7 +1,6 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from 'react'
 import { AgGridReact } from 'ag-grid-react'
-import 'ag-grid-community/styles/ag-grid.css'
-import 'ag-grid-community/styles/ag-theme-quartz.css'
+import { themeQuartz, colorSchemeDarkBlue } from 'ag-grid-community'
 import type {
   ColDef,
   GetRowIdParams,
@@ -9,7 +8,7 @@ import type {
   RowStyle,
   LocaleText,
 } from 'ag-grid-community'
-import { theme as antTheme, Pagination, Button, Space } from 'antd'
+import { theme as antTheme, Pagination, Button, Space, Alert } from 'antd'
 import { DownloadOutlined, FileExcelOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import * as XLSX from 'xlsx'
@@ -19,6 +18,7 @@ export interface AgGridWrapperProps<T extends object> {
   columnDefs: ColDef<T>[]
   rowData: T[] | null | undefined
   loading?: boolean
+  error?: string | null
   pageSize?: number
   getRowId?: (params: GetRowIdParams<T>) => string
   getRowStyle?: (params: RowClassParams<T>) => RowStyle | undefined
@@ -29,6 +29,7 @@ export default function AgGridWrapper<T extends object>({
   columnDefs,
   rowData,
   loading,
+  error,
   pageSize: defaultPageSize = 20,
   getRowId,
   getRowStyle,
@@ -43,6 +44,18 @@ export default function AgGridWrapper<T extends object>({
   const [pageSize, setPageSize]       = useState(defaultPageSize)
 
   const localeText = i18n.language === 'hr' ? AG_GRID_LOCALE_HR : AG_GRID_LOCALE_EN
+
+  const gridTheme = useMemo(() => {
+    const params = {
+      accentColor: token.colorPrimary,
+      fontSize: 13,
+      oddRowBackgroundColor: isDark ? '#243044' : token.colorFillAlter,
+      cellHorizontalBorderColor: isDark ? '#374151' : token.colorBorderSecondary,
+    }
+    return isDark
+      ? themeQuartz.withPart(colorSchemeDarkBlue).withParams(params)
+      : themeQuartz.withParams(params)
+  }, [isDark, token.colorPrimary, token.colorFillAlter, token.colorBorderSecondary])
 
   useEffect(() => {
     setCurrentPage(1)
@@ -87,35 +100,42 @@ export default function AgGridWrapper<T extends object>({
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
 
       <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
-        <div
-          className={isDark ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}
-          style={{
-            position: 'absolute',
-            top: 0, right: 0, bottom: 0, left: 0,
-            '--ag-active-color': token.colorPrimary,
-            '--ag-font-size': '13px',
-            '--ag-odd-row-background-color': isDark ? '#243044' : token.colorFillAlter,
-            '--ag-cell-horizontal-border': `solid 1px ${isDark ? '#374151' : token.colorBorderSecondary}`,
-          } as React.CSSProperties}
-        >
-          <AgGridReact<T>
-            ref={gridRef}
-            columnDefs={columnDefs}
-            rowData={rowData ?? []}
-            loading={loading}
-            defaultColDef={defaultColDef}
-            rowHeight={40}
-            pagination
-            paginationPageSize={pageSize}
-            suppressPaginationPanel
-            onPaginationChanged={handlePaginationChanged}
-            localeText={localeText as LocaleText}
-            getRowId={getRowId}
-            getRowStyle={getRowStyle}
-            suppressMovableColumns
-            animateRows={false}
-          />
-        </div>
+        {error ? (
+          <div style={{
+            position: 'absolute', top: 0, right: 0, bottom: 0, left: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 24,
+          }}>
+            <Alert
+              type="error"
+              showIcon
+              message={i18n.language === 'hr' ? 'Greška pri dohvatu podataka' : 'Failed to load data'}
+              description={error}
+              style={{ maxWidth: 520, width: '100%' }}
+            />
+          </div>
+        ) : (
+          <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+            <AgGridReact<T>
+              ref={gridRef}
+              theme={gridTheme}
+              columnDefs={columnDefs}
+              rowData={rowData ?? []}
+              loading={loading}
+              defaultColDef={defaultColDef}
+              rowHeight={40}
+              pagination
+              paginationPageSize={pageSize}
+              suppressPaginationPanel
+              onPaginationChanged={handlePaginationChanged}
+              localeText={localeText as LocaleText}
+              getRowId={getRowId}
+              getRowStyle={getRowStyle}
+              suppressMovableColumns
+              animateRows={false}
+            />
+          </div>
+        )}
       </div>
 
       <div style={{
