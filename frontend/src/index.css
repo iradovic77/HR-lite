@@ -1,0 +1,18 @@
+/* AG Grid — vertikalne linije između kolona */
+.ag-theme-quartz .ag-cell {
+    border-right: 1px solid #e0e0e0 !important;
+}
+
+/* AG Grid — zebra sjenčanje redaka */
+.ag-theme-quartz .ag-row-odd {
+    background-color: #f8f9fa !important;
+}
+
+/* AG Grid — tamna tema */
+.ag-theme-quartz-dark .ag-cell {
+    border-right: 1px solid #444 !important;
+}
+
+.ag-theme-quartz-dark .ag-row-odd {
+    background-color: #2a2a2a !important;
+}
