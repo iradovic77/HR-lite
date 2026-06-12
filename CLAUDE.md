@@ -319,3 +319,78 @@ services/<ime-servisa>/
 - Arhitekturne odluke dokumentovati u `docs/DECISIONS.md` po ADR formatu.
 - `CLAUDE.md` se ažurira samo kada se mijenjaju temeljna pravila projekta.
 
+## Struktura menija (sidebar navigacija)
+
+Aplikacija koristi data-driven sidebar (menuConfig.ts), grupiran prema:
+
+Root
+├── Osobno
+│   ├── Moji podaci
+│   ├── Moji godišnji odmori
+│   └── ...
+├── Poslovanje
+│   ├── Podaci o osobama
+│   ├── Zaposlenici
+│   ├── Agencijski radnici
+│   ├── Studenti i učenici
+│   ├── Ugovori o djelu
+│   ├── Organizacija
+│   │   ├── Organizacijska hijerarhija
+│   │   ├── Katalog poslova
+│   │   ├── Radna mjesta
+│   │   └── ...
+│   ├── Godišnji odmori
+│   │   ├── Parametri za obračun
+│   │   ├── Kalendar prisutnosti
+│   │   └── ...
+│   ├── Upravljanje ugovorima
+│   │   ├── Masovno produženje ugovora
+│   │   └── ---
+│   ├── Upravljanje dokumentima
+│   │   ├── Katalog dokumenata
+│   │   └── ...
+│   └── Upravljanje zaduženjima
+│       ├── Katalog opreme
+│       └── ---
+├── Šifrarnici
+│   ├── Osnovni
+│   │   ├── Spolovi
+│   │   └── ...
+│   ├── Adrese
+│   │   ├── Države
+│   │   ├── Županije
+│   │   ├── Općine
+│   │   └── Naselja
+│   ├── Zaposlenje
+│   │   ├── Tipovi radnog odnosa
+│   │   └── ...
+│   ├── Godišnji odmori
+│   │   ├── Praznici
+│   │   └── ...
+│   ├── Dokumenti
+│   │   └── ...
+│   └── Organizacija
+│       ├── Vrste organizacijskih jedinica
+│       └── ...
+├── Administracija sustava
+└── Upute
+
+NAPOMENA: "Organizacija" i "Godišnji odmori" postoje i pod Poslovanje (operativni 
+moduli) i pod Šifrarnici (šifarnici vezani uz te module) - to su različite stavke 
+s istim nazivom, ne duplikat.
+
+Trenutno implementirano (Faza 1): Šifrarnici → Osnovni (Spolovi), Adrese (Države, 
+Županije, Općine, Naselja). Ostatak strukture su placeholderi za buduće module.
+
+## Git workflow - veće dorade
+
+Za dorade koje diraju širi dio aplikacije (npr. refaktor navigacije, promjene 
+arhitekture) - rad na zasebnom branchu (npr. feature/menu-grouping), PR se kreira 
+ali se ne merge-a automatski - čeka review.
+
+Za pokretanje branch verzije lokalno:
+git checkout feature/naziv-brancha
+(Vite hot-reload automatski pokupi promjene)
+
+Povratak na main:
+git checkout main
