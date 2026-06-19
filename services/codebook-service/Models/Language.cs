@@ -3,20 +3,15 @@ namespace CodebookService.Models;
 /// <summary>
 /// Tablica podržanih jezika u sustavu.
 ///
-/// Dodavanje novog jezika = jedan novi redak u ovoj tablici.
-/// Ne zahtijeva izmjenu sheme niti koda šifarnika.
+/// Code (ISO 639-1) je primarni ključ — jedinstven, nepromjenjiv,
+/// čitljiv bez JOIN-a. Dodavanje novog jezika = jedan novi redak.
+/// Bez izmjene sheme niti koda šifarnika.
 ///
 /// Seed data: hr (Hrvatski), en (English)
 /// </summary>
 public class Language : IAuditable
 {
-    /// <summary>Primarni ključ.</summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
-    /// ISO 639-1 kod jezika (npr. "hr", "en", "de").
-    /// Jedinstven, nepromjenjiv nakon kreiranja.
-    /// </summary>
+    /// <summary>ISO 639-1 kod jezika (npr. "hr", "en", "de") — primarni ključ.</summary>
     public string Code { get; set; } = string.Empty;
 
     /// <summary>Naziv jezika na vlastitom jeziku (npr. "Hrvatski", "English").</summary>

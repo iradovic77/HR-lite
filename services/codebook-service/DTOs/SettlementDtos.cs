@@ -13,6 +13,9 @@ public class SettlementResponse
     public bool    IsActive            { get; set; }
     public Guid?   MunicipalityId      { get; set; }
     public string? MunicipalityNameHr  { get; set; }
+    public string? CountyNameHr        { get; set; }
+    public string? CountryNameHr       { get; set; }
+    public string? PostalNumber        { get; set; }
 }
 
 /// <summary>Zahtjev za kreiranje novog Settlement zapisa.</summary>
@@ -27,9 +30,12 @@ public class CreateSettlementRequest
     [MaxLength(200)]
     public string? NameEn { get; set; }
 
-    public Guid? MunicipalityId { get; set; }
-    public int   Ordinal        { get; set; } = 0;
-    public bool  IsActive       { get; set; } = true;
+    public Guid?   MunicipalityId { get; set; }
+    public int     Ordinal        { get; set; } = 0;
+    public bool    IsActive       { get; set; } = true;
+
+    [MaxLength(20)]
+    public string? PostalNumber   { get; set; }
 }
 
 /// <summary>Zahtjev za izmjenu Settlement zapisa.</summary>
@@ -44,7 +50,10 @@ public class UpdateSettlementRequest
     [MaxLength(200)]
     public string? NameEn { get; set; }
 
-    public Guid? MunicipalityId { get; set; }
-    public int   Ordinal        { get; set; }
-    public bool  IsActive       { get; set; }
+    public Guid?   MunicipalityId { get; set; }
+    public int     Ordinal        { get; set; }
+    public bool    IsActive       { get; set; }
+
+    [MaxLength(20)]
+    public string? PostalNumber   { get; set; }
 }

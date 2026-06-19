@@ -9,8 +9,8 @@ public class MunicipalityRepository : IMunicipalityRepository
 {
     private readonly CodebookDbContext _db;
 
-    private static readonly Guid HrId = new("b0000000-0000-0000-0000-000000000001");
-    private static readonly Guid EnId = new("b0000000-0000-0000-0000-000000000002");
+    private const string Hr = "hr";
+    private const string En = "en";
 
     public MunicipalityRepository(CodebookDbContext db) => _db = db;
 
@@ -24,75 +24,98 @@ public class MunicipalityRepository : IMunicipalityRepository
         if (countyId.HasValue)
             query = query.Where(m => m.CountyId == countyId.Value);
 
-        return await query
-            .OrderBy(m => m.Ordinal)
-            .ThenBy(m => m.Code)
-            .Select(m => new MunicipalityResponse
+        return await (
+            from m in query
+            join county in _db.Counties on m.CountyId equals county.Id into cg
+            from county in cg.DefaultIfEmpty()
+            join country in _db.Countries on county.CountryId equals country.Id into crg
+            from country in crg.DefaultIfEmpty()
+            orderby country.Ordinal, county.Ordinal, m.Ordinal, m.Code
+            select new MunicipalityResponse
             {
-                Id       = m.Id,
-                Code     = m.Code,
-                IsActive = m.IsActive,
-                Ordinal  = m.Ordinal,
-                CountyId = m.CountyId,
-                NameHr   = _db.Translations
-                    .Where(t => t.EntityType == "codebook_municipality"
-                             && t.EntityId   == m.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                Id        = m.Id,
+                Code      = m.Code,
+                IsActive  = m.IsActive,
+                Ordinal   = m.Ordinal,
+                CountyId  = m.CountyId,
+                JOPPDCode = m.JOPPDCode,
+                NameHr    = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_municipality"
+                             && t.EntityId     == m.Id
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault() ?? m.Code,
                 NameEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_municipality"
-                             && t.EntityId   == m.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_municipality"
+                             && t.EntityId     == m.Id
+                             && t.LanguageCode == En
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault(),
                 CountyNameHr = _db.Translations
-                    .Where(t => t.EntityType == "codebook_county"
-                             && t.EntityId   == m.CountyId
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_county"
+                             && t.EntityId     == m.CountyId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
+                    .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CountryNameHr = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == county.CountryId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
-            })
-            .ToListAsync();
+            }
+        ).ToListAsync();
     }
 
     public async Task<MunicipalityResponse?> GetByIdAsync(Guid id)
     {
-        return await _db.Municipalities
-            .Where(m => m.Id == id)
-            .Select(m => new MunicipalityResponse
+        return await (
+            from m in _db.Municipalities
+            where m.Id == id
+            join county in _db.Counties on m.CountyId equals county.Id into cg
+            from county in cg.DefaultIfEmpty()
+            select new MunicipalityResponse
             {
-                Id       = m.Id,
-                Code     = m.Code,
-                IsActive = m.IsActive,
-                Ordinal  = m.Ordinal,
-                CountyId = m.CountyId,
-                NameHr   = _db.Translations
-                    .Where(t => t.EntityType == "codebook_municipality"
-                             && t.EntityId   == m.Id
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                Id        = m.Id,
+                Code      = m.Code,
+                IsActive  = m.IsActive,
+                Ordinal   = m.Ordinal,
+                CountyId  = m.CountyId,
+                JOPPDCode = m.JOPPDCode,
+                NameHr    = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_municipality"
+                             && t.EntityId     == m.Id
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault() ?? m.Code,
                 NameEn = _db.Translations
-                    .Where(t => t.EntityType == "codebook_municipality"
-                             && t.EntityId   == m.Id
-                             && t.LanguageId == EnId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_municipality"
+                             && t.EntityId     == m.Id
+                             && t.LanguageCode == En
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault(),
                 CountyNameHr = _db.Translations
-                    .Where(t => t.EntityType == "codebook_county"
-                             && t.EntityId   == m.CountyId
-                             && t.LanguageId == HrId
-                             && t.FieldName  == "Name")
+                    .Where(t => t.EntityType   == "codebook_county"
+                             && t.EntityId     == m.CountyId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
+                    .Select(t => t.Value)
+                    .FirstOrDefault(),
+                CountryNameHr = _db.Translations
+                    .Where(t => t.EntityType   == "codebook_country"
+                             && t.EntityId     == county.CountryId
+                             && t.LanguageCode == Hr
+                             && t.FieldName    == "Name")
                     .Select(t => t.Value)
                     .FirstOrDefault()
-            })
-            .FirstOrDefaultAsync();
+            }
+        ).FirstOrDefaultAsync();
     }
 
     public async Task<Municipality?> GetEntityByIdAsync(Guid id)

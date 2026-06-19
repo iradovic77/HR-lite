@@ -64,6 +64,7 @@
         "code": "Code",
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
+        "citizenship": "Citizenship",
         "ordinal": "Order",
         "status": "Status",
         "actions": "Actions"
@@ -82,6 +83,8 @@
         "code_hint": "ISO 3166-1 alpha-2 (e.g. HR, BA, RS)",
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
+        "citizenshipHr": "Citizenship (HR)",
+        "citizenshipEn": "Citizenship (EN)",
         "ordinal": "Order",
         "isActive": "Active"
       },
@@ -141,6 +144,7 @@
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
         "county": "County",
+        "country": "Country",
         "ordinal": "Order",
         "status": "Status",
         "actions": "Actions"
@@ -179,7 +183,10 @@
         "code": "Code",
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
+        "postalNumber": "Postal code",
         "municipality": "Municipality",
+        "county": "County",
+        "country": "Country",
         "ordinal": "Order",
         "status": "Status",
         "actions": "Actions"
@@ -198,6 +205,7 @@
         "code_hint": "City/settlement code",
         "nameHr": "Name (HR)",
         "nameEn": "Name (EN)",
+        "postalNumber": "Postal code",
         "municipality": "Municipality",
         "ordinal": "Order",
         "isActive": "Active"
@@ -227,6 +235,7 @@
     "required": "This field is required",
     "error_in_use": "This record cannot be deleted because it is used elsewhere in the system.",
     "error_delete": "An error occurred while deleting the record.",
-    "only_active": "Show active only"
+    "only_active": "Show active only",
+    "export_csv": "Export CSV"
   }
 }

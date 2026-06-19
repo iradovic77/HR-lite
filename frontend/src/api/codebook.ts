@@ -49,6 +49,8 @@ export interface CountryResponse {
   code: string
   nameHr: string
   nameEn: string | null
+  citizenshipHr: string | null
+  citizenshipEn: string | null
   ordinal: number
   isActive: boolean
 }
@@ -57,6 +59,8 @@ export interface CreateCountryRequest {
   code: string
   nameHr: string
   nameEn?: string
+  citizenshipHr?: string
+  citizenshipEn?: string
   ordinal: number
   isActive: boolean
 }
@@ -65,6 +69,8 @@ export interface UpdateCountryRequest {
   code: string
   nameHr: string
   nameEn?: string | null
+  citizenshipHr?: string | null
+  citizenshipEn?: string | null
   ordinal: number
   isActive: boolean
 }
@@ -143,6 +149,8 @@ export interface MunicipalityResponse {
   isActive: boolean
   countyId: string | null
   countyNameHr: string | null
+  countryNameHr: string | null
+  joppdCode: string | null
 }
 
 export interface CreateMunicipalityRequest {
@@ -152,6 +160,7 @@ export interface CreateMunicipalityRequest {
   countyId?: string | null
   ordinal: number
   isActive: boolean
+  joppdCode?: string | null
 }
 
 export interface UpdateMunicipalityRequest {
@@ -161,6 +170,7 @@ export interface UpdateMunicipalityRequest {
   countyId?: string | null
   ordinal: number
   isActive: boolean
+  joppdCode?: string | null
 }
 
 export const municipalityApi = {
@@ -191,6 +201,9 @@ export interface SettlementResponse {
   isActive: boolean
   municipalityId: string | null
   municipalityNameHr: string | null
+  countyNameHr: string | null
+  countryNameHr: string | null
+  postalNumber: string | null
 }
 
 export interface CreateSettlementRequest {
@@ -200,6 +213,7 @@ export interface CreateSettlementRequest {
   municipalityId?: string | null
   ordinal: number
   isActive: boolean
+  postalNumber?: string | null
 }
 
 export interface UpdateSettlementRequest {
@@ -209,6 +223,7 @@ export interface UpdateSettlementRequest {
   municipalityId?: string | null
   ordinal: number
   isActive: boolean
+  postalNumber?: string | null
 }
 
 export const settlementApi = {

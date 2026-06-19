@@ -5,6 +5,7 @@ import hrHR from 'antd/locale/hr_HR'
 import enUS from 'antd/locale/en_US'
 import { useTranslation } from 'react-i18next'
 import MainLayout from '@/layouts/MainLayout'
+import { ThemeContext } from '@/context/ThemeContext'
 import GenderPage from '@/pages/codebook/GenderPage'
 import CountryPage from '@/pages/codebook/CountryPage'
 import CountyPage from '@/pages/codebook/CountyPage'
@@ -28,6 +29,7 @@ export default function App() {
   const antLocale = i18n.language === 'hr' ? hrHR : enUS
 
   return (
+    <ThemeContext.Provider value={{ isDark, onToggle: handleThemeToggle }}>
     <ConfigProvider
       locale={antLocale}
       theme={{
@@ -61,5 +63,6 @@ export default function App() {
       </BrowserRouter>
       </AntApp>
     </ConfigProvider>
+    </ThemeContext.Provider>
   )
 }

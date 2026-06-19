@@ -11,5 +11,6 @@ public class Municipality : CodebookBase
     /// Logički FK prema tablici codebook_county.
     /// Nema DB foreign key constraint — veza se provodi na aplikativnom nivou.
     /// </summary>
-    public Guid? CountyId { get; set; }
+    public Guid?   CountyId   { get; set; }
+    public string? JOPPDCode  { get; set; }
 }

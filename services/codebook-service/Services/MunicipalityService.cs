@@ -10,8 +10,8 @@ public class MunicipalityService : IMunicipalityService
     private readonly IMunicipalityRepository _repo;
     private readonly CodebookDbContext       _db;
 
-    private static readonly Guid HrId = new("b0000000-0000-0000-0000-000000000001");
-    private static readonly Guid EnId = new("b0000000-0000-0000-0000-000000000002");
+    private const string Hr = "hr";
+    private const string En = "en";
 
     public MunicipalityService(IMunicipalityRepository repo, CodebookDbContext db)
     {
@@ -34,6 +34,7 @@ public class MunicipalityService : IMunicipalityService
             IsActive  = req.IsActive,
             Ordinal   = req.Ordinal,
             CountyId  = req.CountyId,
+            JOPPDCode = req.JOPPDCode,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             CreatedBy = Guid.Empty,
@@ -55,6 +56,7 @@ public class MunicipalityService : IMunicipalityService
         municipality.IsActive  = req.IsActive;
         municipality.Ordinal   = req.Ordinal;
         municipality.CountyId  = req.CountyId;
+        municipality.JOPPDCode = req.JOPPDCode;
         municipality.UpdatedAt = DateTime.UtcNow;
         municipality.UpdatedBy = Guid.Empty;
 
@@ -91,21 +93,21 @@ public class MunicipalityService : IMunicipalityService
 
     private async Task UpsertTranslationsAsync(Guid municipalityId, string nameHr, string? nameEn)
     {
-        await UpsertOneAsync(municipalityId, HrId, "Name", nameHr);
+        await UpsertOneAsync(municipalityId, Hr, "Name", nameHr);
 
         if (!string.IsNullOrWhiteSpace(nameEn))
-            await UpsertOneAsync(municipalityId, EnId, "Name", nameEn);
+            await UpsertOneAsync(municipalityId, En, "Name", nameEn);
 
         await _db.SaveChangesAsync();
     }
 
-    private async Task UpsertOneAsync(Guid entityId, Guid languageId, string fieldName, string value)
+    private async Task UpsertOneAsync(Guid entityId, string languageCode, string fieldName, string value)
     {
         var existing = _db.Translations.FirstOrDefault(t =>
-            t.EntityType == "codebook_municipality" &&
-            t.EntityId   == entityId               &&
-            t.LanguageId == languageId             &&
-            t.FieldName  == fieldName);
+            t.EntityType   == "codebook_municipality" &&
+            t.EntityId     == entityId               &&
+            t.LanguageCode == languageCode           &&
+            t.FieldName    == fieldName);
 
         if (existing is not null)
         {
@@ -117,16 +119,16 @@ public class MunicipalityService : IMunicipalityService
         {
             _db.Translations.Add(new Translation
             {
-                Id         = Guid.NewGuid(),
-                EntityType = "codebook_municipality",
-                EntityId   = entityId,
-                LanguageId = languageId,
-                FieldName  = fieldName,
-                Value      = value,
-                CreatedAt  = DateTime.UtcNow,
-                UpdatedAt  = DateTime.UtcNow,
-                CreatedBy  = Guid.Empty,
-                UpdatedBy  = Guid.Empty
+                Id           = Guid.NewGuid(),
+                EntityType   = "codebook_municipality",
+                EntityId     = entityId,
+                LanguageCode = languageCode,
+                FieldName    = fieldName,
+                Value        = value,
+                CreatedAt    = DateTime.UtcNow,
+                UpdatedAt    = DateTime.UtcNow,
+                CreatedBy    = Guid.Empty,
+                UpdatedBy    = Guid.Empty
             });
         }
     }

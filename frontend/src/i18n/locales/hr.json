@@ -64,6 +64,7 @@
         "code": "Kod",
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
+        "citizenship": "Državljanstvo",
         "ordinal": "Redoslijed",
         "status": "Status",
         "actions": "Akcije"
@@ -82,6 +83,8 @@
         "code_hint": "ISO 3166-1 alpha-2 (npr. HR, BA, RS)",
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
+        "citizenshipHr": "Državljanstvo (HR)",
+        "citizenshipEn": "Državljanstvo (EN)",
         "ordinal": "Redoslijed",
         "isActive": "Aktivan"
       },
@@ -141,6 +144,7 @@
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
         "county": "Županija",
+        "country": "Država",
         "ordinal": "Redoslijed",
         "status": "Status",
         "actions": "Akcije"
@@ -179,7 +183,10 @@
         "code": "Kod",
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
+        "postalNumber": "Poštanski broj",
         "municipality": "Općina",
+        "county": "Županija",
+        "country": "Država",
         "ordinal": "Redoslijed",
         "status": "Status",
         "actions": "Akcije"
@@ -198,6 +205,7 @@
         "code_hint": "Šifra grada/naselja",
         "nameHr": "Naziv (HR)",
         "nameEn": "Naziv (EN)",
+        "postalNumber": "Poštanski broj",
         "municipality": "Općina",
         "ordinal": "Redoslijed",
         "isActive": "Aktivan"
@@ -227,6 +235,7 @@
     "required": "Ovo polje je obavezno",
     "error_in_use": "Zapis nije moguće obrisati jer se koristi u sustavu.",
     "error_delete": "Greška pri brisanju zapisa.",
-    "only_active": "Prikaži samo aktivne"
+    "only_active": "Prikaži samo aktivne",
+    "export_csv": "Izvoz u CSV"
   }
 }

@@ -240,8 +240,8 @@ Višejezičnost se implementira kroz generički Translation sustav. **Nikad ne d
 
 ## Višejezičnost — detalji implementacije
 - Generički Translation sustav kroz Language i Translation tablice (NE kolone NameHr/NameEn)
-- Language tablica: Id, Code (hr, en...), Name (Hrvatski, English...)
-- Translation tablica: Id, EntityType, EntityId, LanguageId, FieldName, Value
+- Language tablica: Code (hr, en...) kao PK, Name (Hrvatski, English...)
+- Translation tablica: Id, EntityType, EntityId, LanguageCode, FieldName, Value
 - Hrvatski prijevod je OBAVEZAN za sve unose — bez njega se ne može spremiti
 - Fallback logika: traženi jezik → hrvatski → Code
 - Code kolona je neutralni identifikator, nikad se ne prevodi
@@ -253,8 +253,7 @@ Višejezičnost se implementira kroz generički Translation sustav. **Nikad ne d
 
 | Kolona | Napomena |
 |--------|----------|
-| `Id` | Guid, PK |
-| `Code` | ISO 639-1 — `hr`, `en`, `de` |
+| `Code` | ISO 639-1 — `hr`, `en`, `de` — **PK** |
 | `Name` | Naziv na vlastitom jeziku |
 | + audit kolone | |
 
@@ -263,9 +262,9 @@ Višejezičnost se implementira kroz generički Translation sustav. **Nikad ne d
 | Kolona | Napomena |
 |--------|----------|
 | `Id` | Guid, PK |
-| `EntityType` | Naziv tablice — npr. `codebook_gender` |
+| `EntityType` | Naziv tablice — identičan PostgreSQL nazivu (npr. `codebook_gender`) |
 | `EntityId` | Id retka koji se prevodi |
-| `LanguageId` | FK → `language.Id` |
+| `LanguageCode` | FK → `language.Code` |
 | `FieldName` | Polje koje se prevodi — npr. `Name` |
 | `Value` | Prevedeni tekst |
 | + audit kolone | |
@@ -278,6 +277,7 @@ Višejezičnost se implementira kroz generički Translation sustav. **Nikad ne d
 - `Code` kolona entiteta je neutralni identifikator — **nikad se ne prevodi**.
 - Novi jezik = jedan redak u `language` tablici. **Bez izmjene sheme** ostalih tablica.
 - Seed data za prijevode ide kroz EF Core migracije (`HasData` na `Translation` entitetu).
+- **`EntityType` u `translation` tablici mora biti identičan PostgreSQL nazivu tablice entiteta** (npr. `codebook_country`, `codebook_gender`). Nikad kratke forme, aliasi ili drugačiji formati. Fallback logika koja prihvaća alternativne vrijednosti nije dozvoljena.
 
 ---
 

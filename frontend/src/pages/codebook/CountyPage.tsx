@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Table, Button, Tag, Space, Form, Input, Select,
-  InputNumber, Switch, App, Pagination, Tooltip, Checkbox,
+  Button, Tag, Space, Form, Input, Select,
+  InputNumber, Switch, App, Tooltip, Checkbox,
 } from 'antd'
 import AppModal from '@/components/AppModal'
+import AgGridWrapper from '@/components/AgGridWrapper'
 import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons'
-import type { ColumnsType } from 'antd/es/table'
+import type { ColDef, ICellRendererParams } from 'ag-grid-community'
 import {
   countryApi, countyApi,
   type CountryResponse, type CountyResponse, type CreateCountyRequest,
 } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
-
-const PAGE_SIZE = 20
+import { useTheme } from '@/context/ThemeContext'
 
 interface FormValues {
   code: string
@@ -27,11 +27,12 @@ interface FormValues {
 export default function CountyPage() {
   const { t } = useTranslation()
   const { message, modal } = App.useApp()
+  const { isDark } = useTheme()
 
   const [data, setData]                   = useState<CountyResponse[]>([])
   const [countries, setCountries]         = useState<CountryResponse[]>([])
   const [loading, setLoading]             = useState(false)
-  const [page, setPage]                   = useState(1)
+  const [fetchError, setFetchError]       = useState<string | null>(null)
   const [onlyActive, setOnlyActive]       = useState(true)
   const [countryFilter, setCountryFilter] = useState<string | null>(null)
   const [modalOpen, setModalOpen]         = useState(false)
@@ -48,12 +49,13 @@ export default function CountyPage() {
 
   const fetchData = async () => {
     setLoading(true)
+    setFetchError(null)
     try {
       const res = await countyApi.getAll(true, countryFilter)
-      setData(res.data)
-      setPage(1)
-    } catch {
-      message.error('Greška pri dohvatu podataka')
+      setData(Array.isArray(res.data) ? res.data : [])
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      setFetchError(status ? `Servis vratio grešku HTTP ${status}.` : 'Servis nije dostupan ili je vratio neispravne podatke.')
     } finally {
       setLoading(false)
     }
@@ -62,8 +64,7 @@ export default function CountyPage() {
   useEffect(() => { fetchCountries() }, [])
   useEffect(() => { fetchData() }, [countryFilter])
 
-  const filteredData  = onlyActive ? data.filter(d => d.isActive) : data
-  const paginatedData = filteredData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const filteredData = onlyActive ? data.filter(d => d.isActive) : data
 
   const openAddModal = () => {
     setEditingItem(null)
@@ -128,9 +129,7 @@ export default function CountyPage() {
 
   const confirmToggleActive = (item: CountyResponse) => {
     modal.confirm({
-      title: t(item.isActive
-        ? 'codebook.county.confirm.deactivate'
-        : 'codebook.county.confirm.activate'),
+      title: t(item.isActive ? 'codebook.county.confirm.deactivate' : 'codebook.county.confirm.activate'),
       onOk: () => handleToggleActive(item),
       okText: t('common.yes'),
       cancelText: t('common.no'),
@@ -150,78 +149,78 @@ export default function CountyPage() {
     })
   }
 
-  const columns: ColumnsType<CountyResponse> = [
+  const countryOptions = useMemo(
+    () => countries.map(c => ({ value: c.id, label: c.nameHr })),
+    [countries]
+  )
+
+  const columnDefs = useMemo<ColDef<CountyResponse>[]>(() => [
     {
-      title: t('codebook.county.columns.code'),
-      dataIndex: 'code',
-      key: 'code',
+      field: 'code',
+      headerName: t('codebook.county.columns.code'),
       width: 80,
-      sorter: (a, b) => a.code.localeCompare(b.code),
     },
     {
-      title: t('codebook.county.columns.nameHr'),
-      dataIndex: 'nameHr',
-      key: 'nameHr',
+      field: 'nameHr',
+      headerName: t('codebook.county.columns.nameHr'),
+      flex: 1,
     },
     {
-      title: t('codebook.county.columns.nameEn'),
-      dataIndex: 'nameEn',
-      key: 'nameEn',
-      render: (val: string | null) => val ?? '—',
+      field: 'nameEn',
+      headerName: t('codebook.county.columns.nameEn'),
+      flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
     },
     {
-      title: t('codebook.county.columns.country'),
-      dataIndex: 'countryNameHr',
-      key: 'countryNameHr',
-      render: (val: string | null) => val ?? '—',
+      field: 'countryNameHr',
+      headerName: t('codebook.county.columns.country'),
+      flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
+      sort: 'asc',
+      sortIndex: 0,
     },
     {
-      title: t('codebook.county.columns.ordinal'),
-      dataIndex: 'ordinal',
-      key: 'ordinal',
-      width: 110,
-      sorter: (a, b) => a.ordinal - b.ordinal,
-      defaultSortOrder: 'ascend',
+      field: 'ordinal',
+      headerName: t('codebook.county.columns.ordinal'),
+      width: 120,
+      sort: 'asc',
+      sortIndex: 1,
     },
     {
-      title: t('codebook.county.columns.status'),
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: 110,
-      render: (isActive: boolean) =>
-        isActive
+      field: 'isActive',
+      headerName: t('codebook.county.columns.status'),
+      width: 120,
+      filter: false,
+      cellRenderer: (p: ICellRendererParams<CountyResponse>) =>
+        p.value
           ? <Tag color="success">{t('codebook.county.status.active')}</Tag>
           : <Tag color="default">{t('codebook.county.status.inactive')}</Tag>,
     },
     {
-      title: t('codebook.county.columns.actions'),
-      key: 'actions',
+      headerName: t('codebook.county.columns.actions'),
       width: 120,
-      render: (_, record) => (
-        <Space size={4}>
-          <Tooltip title={t('codebook.county.actions.edit')}>
-            <Button type="text" icon={<EditOutlined />} size="small"
-              onClick={() => openEditModal(record)} />
-          </Tooltip>
-          <Tooltip title={t(record.isActive
-            ? 'codebook.county.actions.deactivate'
-            : 'codebook.county.actions.activate')}
-          >
-            <Button type="text"
-              icon={record.isActive ? <StopOutlined /> : <CheckOutlined />}
-              size="small" danger={record.isActive}
-              onClick={() => confirmToggleActive(record)} />
-          </Tooltip>
-          <Tooltip title={t('codebook.county.actions.delete')}>
-            <Button type="text" icon={<DeleteOutlined />} size="small" danger
-              onClick={() => confirmDelete(record)} />
-          </Tooltip>
-        </Space>
-      ),
+      sortable: false,
+      filter: false,
+      resizable: false,
+      cellRenderer: (p: ICellRendererParams<CountyResponse>) => {
+        const rec = p.data!
+        return (
+          <Space size={4}>
+            <Tooltip title={t('codebook.county.actions.edit')}>
+              <Button type="text" icon={<EditOutlined />} size="small" onClick={() => openEditModal(rec)} />
+            </Tooltip>
+            <Tooltip title={t(rec.isActive ? 'codebook.county.actions.deactivate' : 'codebook.county.actions.activate')}>
+              <Button type="text" icon={rec.isActive ? <StopOutlined /> : <CheckOutlined />}
+                size="small" danger={rec.isActive} onClick={() => confirmToggleActive(rec)} />
+            </Tooltip>
+            <Tooltip title={t('codebook.county.actions.delete')}>
+              <Button type="text" icon={<DeleteOutlined />} size="small" danger onClick={() => confirmDelete(rec)} />
+            </Tooltip>
+          </Space>
+        )
+      },
     },
-  ]
-
-  const countryOptions = countries.map(c => ({ value: c.id, label: c.nameHr }))
+  ], [t, openEditModal, confirmToggleActive, confirmDelete])
 
   return (
     <CodebookLayout
@@ -229,18 +228,19 @@ export default function CountyPage() {
       extra={
         <Space>
           <Select
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+            }
             allowClear
             placeholder={t('codebook.county.filter_country')}
             value={countryFilter}
-            onChange={(v) => { setCountryFilter(v ?? null); setPage(1) }}
+            onChange={(v) => setCountryFilter(v ?? null)}
             options={countryOptions}
             style={{ minWidth: 160 }}
             size="small"
           />
-          <Checkbox
-            checked={onlyActive}
-            onChange={e => { setOnlyActive(e.target.checked); setPage(1) }}
-          >
+          <Checkbox checked={onlyActive} onChange={e => setOnlyActive(e.target.checked)}>
             {t('common.only_active')}
           </Checkbox>
           <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
@@ -248,33 +248,21 @@ export default function CountyPage() {
           </Button>
         </Space>
       }
-      pagination={
-        <Pagination
-          current={page}
-          total={filteredData.length}
-          pageSize={PAGE_SIZE}
-          onChange={setPage}
-          showTotal={(total) => `Ukupno: ${total}`}
-          size="small"
-        />
-      }
     >
-      <Table
-        columns={columns}
-        dataSource={paginatedData}
-        rowKey="id"
-        size="small"
+      <AgGridWrapper<CountyResponse>
+        columnDefs={columnDefs}
+        rowData={filteredData}
         loading={loading}
-        pagination={false}
-        onRow={(record) => ({
-          style: record.isActive ? {} : { opacity: 0.45 },
-        })}
+        error={fetchError}
+        exportModule="Codebook"
+        exportEntity="County"
+        getRowId={(p) => p.data.id}
+        getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
+        isDark={isDark}
       />
 
       <AppModal
-        title={editingItem
-          ? t('codebook.county.modal.editTitle')
-          : t('codebook.county.modal.addTitle')}
+        title={editingItem ? t('codebook.county.modal.editTitle') : t('codebook.county.modal.addTitle')}
         open={modalOpen}
         onOk={handleSave}
         onCancel={() => setModalOpen(false)}
@@ -303,7 +291,14 @@ export default function CountyPage() {
             <Input maxLength={200} />
           </Form.Item>
           <Form.Item name="countryId" label={t('codebook.county.modal.country')}>
-            <Select allowClear options={countryOptions} />
+            <Select
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+              allowClear
+              options={countryOptions}
+            />
           </Form.Item>
           <Form.Item name="ordinal" label={t('codebook.county.modal.ordinal')}>
             <InputNumber min={0} style={{ width: '100%' }} />

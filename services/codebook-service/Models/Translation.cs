@@ -8,11 +8,11 @@ namespace CodebookService.Models;
 /// novog jezika bez ikakve izmjene sheme ostalih tablica.
 ///
 /// Primjer retka:
-///   EntityType = "codebook_gender"
-///   EntityId   = "a1000000-0000-0000-0000-000000000001"  ← Gender M
-///   LanguageId = "b0000000-0000-0000-0000-000000000001"  ← hr
-///   FieldName  = "Name"
-///   Value      = "Muško"
+///   EntityType   = "codebook_gender"
+///   EntityId     = "a1000000-0000-0000-0000-000000000001"  ← Gender M
+///   LanguageCode = "hr"
+///   FieldName    = "Name"
+///   Value        = "Muško"
 ///
 /// Fallback logika (implementira se u servisnom sloju):
 ///   1. Traženi jezik (npr. "de") → ako ne postoji:
@@ -33,12 +33,12 @@ public class Translation : IAuditable
     /// <summary>Id retka koji se prevodi (PK entiteta).</summary>
     public Guid EntityId { get; set; }
 
-    /// <summary>FK prema tablici language. Pravi DB constraint — u istoj shemi.</summary>
-    public Guid LanguageId { get; set; }
+    /// <summary>FK prema language.Code — ISO 639-1 kod jezika.</summary>
+    public string LanguageCode { get; set; } = string.Empty;
 
     /// <summary>
     /// Naziv polja koje se prevodi.
-    /// Trenutno uvijek "Name", ali dizajn dozvoljava prijevod više polja istog entiteta.
+    /// Primjeri: "Name", "Citizenship"
     /// </summary>
     public string FieldName { get; set; } = string.Empty;
 

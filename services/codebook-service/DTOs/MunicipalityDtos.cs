@@ -13,6 +13,8 @@ public class MunicipalityResponse
     public bool    IsActive      { get; set; }
     public Guid?   CountyId      { get; set; }
     public string? CountyNameHr  { get; set; }
+    public string? CountryNameHr { get; set; }
+    public string? JOPPDCode     { get; set; }
 }
 
 /// <summary>Zahtjev za kreiranje novog Municipality zapisa.</summary>
@@ -27,9 +29,12 @@ public class CreateMunicipalityRequest
     [MaxLength(200)]
     public string? NameEn { get; set; }
 
-    public Guid? CountyId { get; set; }
-    public int   Ordinal  { get; set; } = 0;
-    public bool  IsActive { get; set; } = true;
+    public Guid?   CountyId   { get; set; }
+    public int     Ordinal    { get; set; } = 0;
+    public bool    IsActive   { get; set; } = true;
+
+    [MaxLength(20)]
+    public string? JOPPDCode  { get; set; }
 }
 
 /// <summary>Zahtjev za izmjenu Municipality zapisa.</summary>
@@ -44,7 +49,10 @@ public class UpdateMunicipalityRequest
     [MaxLength(200)]
     public string? NameEn { get; set; }
 
-    public Guid? CountyId { get; set; }
-    public int   Ordinal  { get; set; }
-    public bool  IsActive { get; set; }
+    public Guid?   CountyId   { get; set; }
+    public int     Ordinal    { get; set; }
+    public bool    IsActive   { get; set; }
+
+    [MaxLength(20)]
+    public string? JOPPDCode  { get; set; }
 }

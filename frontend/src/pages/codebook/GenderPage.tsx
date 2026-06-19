@@ -1,41 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Table, Button, Tag, Space, Form, Input,
-  InputNumber, Switch, App, Pagination, Tooltip, Checkbox,
+  Button, Tag, Space, Form, Input,
+  InputNumber, Switch, App, Tooltip, Checkbox,
 } from 'antd'
 import AppModal from '@/components/AppModal'
+import AgGridWrapper from '@/components/AgGridWrapper'
 import { PlusOutlined, EditOutlined, StopOutlined, CheckOutlined, DeleteOutlined } from '@ant-design/icons'
-import type { ColumnsType } from 'antd/es/table'
+import type { ColDef, ICellRendererParams } from 'ag-grid-community'
 import { genderApi, type GenderResponse, type CreateGenderRequest } from '@/api/codebook'
 import CodebookLayout from '@/layouts/CodebookLayout'
+import { useTheme } from '@/context/ThemeContext'
 
-const PAGE_SIZE = 20
 type FormValues = Omit<GenderResponse, 'id'>
 
 export default function GenderPage() {
   const { t } = useTranslation()
   const { message, modal } = App.useApp()
+  const { isDark } = useTheme()
 
   const [data, setData]               = useState<GenderResponse[]>([])
   const [loading, setLoading]         = useState(false)
-  const [page, setPage]               = useState(1)
+  const [fetchError, setFetchError]   = useState<string | null>(null)
   const [onlyActive, setOnlyActive]   = useState(true)
   const [modalOpen, setModalOpen]     = useState(false)
   const [saving, setSaving]           = useState(false)
   const [editingItem, setEditingItem] = useState<GenderResponse | null>(null)
   const [form] = Form.useForm<FormValues>()
 
-  // ── Dohvat podataka ─────────────────────────────────────────────────
-
   const fetchData = async () => {
     setLoading(true)
+    setFetchError(null)
     try {
       const res = await genderApi.getAll(true)
-      setData(res.data)
-      setPage(1)
-    } catch {
-      message.error('Greška pri dohvatu podataka')
+      setData(Array.isArray(res.data) ? res.data : [])
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      setFetchError(status ? `Servis vratio grešku HTTP ${status}.` : 'Servis nije dostupan ili je vratio neispravne podatke.')
     } finally {
       setLoading(false)
     }
@@ -43,10 +44,7 @@ export default function GenderPage() {
 
   useEffect(() => { fetchData() }, [])
 
-  const filteredData  = onlyActive ? data.filter(d => d.isActive) : data
-  const paginatedData = filteredData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  // ── Handlers ────────────────────────────────────────────────────────
+  const filteredData = onlyActive ? data.filter(d => d.isActive) : data
 
   const openAddModal = () => {
     setEditingItem(null)
@@ -98,19 +96,13 @@ export default function GenderPage() {
       fetchData()
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status
-      message.error(status === 409
-        ? t('common.error_in_use')
-        : t('common.error_delete'))
+      message.error(status === 409 ? t('common.error_in_use') : t('common.error_delete'))
     }
   }
 
-  // ── Confirm dijalozi (centrirani na ekranu) ─────────────────────────
-
   const confirmToggleActive = (item: GenderResponse) => {
     modal.confirm({
-      title: t(item.isActive
-        ? 'codebook.gender.confirm.deactivate'
-        : 'codebook.gender.confirm.activate'),
+      title: t(item.isActive ? 'codebook.gender.confirm.deactivate' : 'codebook.gender.confirm.activate'),
       onOk: () => handleToggleActive(item),
       okText: t('common.yes'),
       cancelText: t('common.no'),
@@ -130,93 +122,71 @@ export default function GenderPage() {
     })
   }
 
-  // ── Kolone tablice ──────────────────────────────────────────────────
-
-  const columns: ColumnsType<GenderResponse> = [
+  const columnDefs = useMemo<ColDef<GenderResponse>[]>(() => [
     {
-      title: t('codebook.gender.columns.code'),
-      dataIndex: 'code',
-      key: 'code',
+      field: 'code',
+      headerName: t('codebook.gender.columns.code'),
       width: 80,
-      sorter: (a, b) => a.code.localeCompare(b.code),
     },
     {
-      title: t('codebook.gender.columns.nameHr'),
-      dataIndex: 'nameHr',
-      key: 'nameHr',
+      field: 'nameHr',
+      headerName: t('codebook.gender.columns.nameHr'),
+      flex: 1,
     },
     {
-      title: t('codebook.gender.columns.nameEn'),
-      dataIndex: 'nameEn',
-      key: 'nameEn',
-      render: (val: string | null) => val ?? '—',
+      field: 'nameEn',
+      headerName: t('codebook.gender.columns.nameEn'),
+      flex: 1,
+      valueFormatter: (p) => p.value ?? '—',
     },
     {
-      title: t('codebook.gender.columns.ordinal'),
-      dataIndex: 'ordinal',
-      key: 'ordinal',
-      width: 110,
-      sorter: (a, b) => a.ordinal - b.ordinal,
-      defaultSortOrder: 'ascend',
+      field: 'ordinal',
+      headerName: t('codebook.gender.columns.ordinal'),
+      width: 120,
+      sort: 'asc',
     },
     {
-      title: t('codebook.gender.columns.status'),
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: 110,
-      render: (isActive: boolean) =>
-        isActive
+      field: 'isActive',
+      headerName: t('codebook.gender.columns.status'),
+      width: 120,
+      filter: false,
+      cellRenderer: (p: ICellRendererParams<GenderResponse>) =>
+        p.value
           ? <Tag color="success">{t('codebook.gender.status.active')}</Tag>
           : <Tag color="default">{t('codebook.gender.status.inactive')}</Tag>,
     },
     {
-      title: t('codebook.gender.columns.actions'),
-      key: 'actions',
+      headerName: t('codebook.gender.columns.actions'),
       width: 120,
-      render: (_, record) => (
-        <Space size={4}>
-          <Tooltip title={t('codebook.gender.actions.edit')}>
-            <Button
-              type="text" icon={<EditOutlined />} size="small"
-              onClick={() => openEditModal(record)}
-            />
-          </Tooltip>
-
-          <Tooltip title={t(record.isActive
-            ? 'codebook.gender.actions.deactivate'
-            : 'codebook.gender.actions.activate')}
-          >
-            <Button
-              type="text"
-              icon={record.isActive ? <StopOutlined /> : <CheckOutlined />}
-              size="small"
-              danger={record.isActive}
-              onClick={() => confirmToggleActive(record)}
-            />
-          </Tooltip>
-
-          <Tooltip title={t('codebook.gender.actions.delete')}>
-            <Button
-              type="text" icon={<DeleteOutlined />} size="small" danger
-              onClick={() => confirmDelete(record)}
-            />
-          </Tooltip>
-        </Space>
-      ),
+      sortable: false,
+      filter: false,
+      resizable: false,
+      cellRenderer: (p: ICellRendererParams<GenderResponse>) => {
+        const rec = p.data!
+        return (
+          <Space size={4}>
+            <Tooltip title={t('codebook.gender.actions.edit')}>
+              <Button type="text" icon={<EditOutlined />} size="small" onClick={() => openEditModal(rec)} />
+            </Tooltip>
+            <Tooltip title={t(rec.isActive ? 'codebook.gender.actions.deactivate' : 'codebook.gender.actions.activate')}>
+              <Button type="text" icon={rec.isActive ? <StopOutlined /> : <CheckOutlined />}
+                size="small" danger={rec.isActive} onClick={() => confirmToggleActive(rec)} />
+            </Tooltip>
+            <Tooltip title={t('codebook.gender.actions.delete')}>
+              <Button type="text" icon={<DeleteOutlined />} size="small" danger onClick={() => confirmDelete(rec)} />
+            </Tooltip>
+          </Space>
+        )
+      },
     },
-  ]
-
-  // ── Render ──────────────────────────────────────────────────────────
+  ], [t, openEditModal, confirmToggleActive, confirmDelete])
 
   return (
     <CodebookLayout
       title={t('codebook.gender.title')}
       extra={
         <Space>
-          <Checkbox
-            checked={onlyActive}
-            onChange={e => { setOnlyActive(e.target.checked); setPage(1) }}
-          >
+          <Checkbox checked={onlyActive} onChange={e => setOnlyActive(e.target.checked)}>
             {t('common.only_active')}
           </Checkbox>
           <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
@@ -224,33 +194,21 @@ export default function GenderPage() {
           </Button>
         </Space>
       }
-      pagination={
-        <Pagination
-          current={page}
-          total={filteredData.length}
-          pageSize={PAGE_SIZE}
-          onChange={setPage}
-          showTotal={(total) => `Ukupno: ${total}`}
-          size="small"
-        />
-      }
     >
-      <Table
-        columns={columns}
-        dataSource={paginatedData}
-        rowKey="id"
-        size="small"
+      <AgGridWrapper<GenderResponse>
+        columnDefs={columnDefs}
+        rowData={filteredData}
         loading={loading}
-        pagination={false}
-        onRow={(record) => ({
-          style: record.isActive ? {} : { opacity: 0.45 },
-        })}
+        error={fetchError}
+        exportModule="Codebook"
+        exportEntity="Gender"
+        getRowId={(p) => p.data.id}
+        getRowStyle={(p) => p.data?.isActive ? undefined : { opacity: 0.45 }}
+        isDark={isDark}
       />
 
       <AppModal
-        title={editingItem
-          ? t('codebook.gender.modal.editTitle')
-          : t('codebook.gender.modal.addTitle')}
+        title={editingItem ? t('codebook.gender.modal.editTitle') : t('codebook.gender.modal.addTitle')}
         open={modalOpen}
         onOk={handleSave}
         onCancel={() => setModalOpen(false)}
@@ -268,7 +226,6 @@ export default function GenderPage() {
           >
             <Input maxLength={10} style={{ textTransform: 'uppercase' }} />
           </Form.Item>
-
           <Form.Item
             name="nameHr"
             label={t('codebook.gender.modal.nameHr')}
@@ -276,15 +233,12 @@ export default function GenderPage() {
           >
             <Input maxLength={100} />
           </Form.Item>
-
           <Form.Item name="nameEn" label={t('codebook.gender.modal.nameEn')}>
             <Input maxLength={100} />
           </Form.Item>
-
           <Form.Item name="ordinal" label={t('codebook.gender.modal.ordinal')}>
             <InputNumber min={0} style={{ width: '100%' }} />
           </Form.Item>
-
           <Form.Item name="isActive" label={t('codebook.gender.modal.isActive')} valuePropName="checked">
             <Switch />
           </Form.Item>
