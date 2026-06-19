@@ -104,4 +104,30 @@ Format: **[ADR-NNN] Naslov** | Datum | Status
 
 ---
 
+## ADR-007: Migracija na modularni monolit
+
+**Datum:** 2026-06-19  
+**Status:** Prihvaćeno
+
+**Kontekst:** Projekt je počeo kao mikroservisna arhitektura (ADR-001). Nakon što su implementirana samo 2 servisa (codebook i identity), postalo je jasno da overhead mikroservisa nije opravdan za tim od 1 osobe.
+
+**Odluka:** Preseli sve u jedan .NET 8 Web API projekt (`hr-lite-api/`) s modularnom strukturom — zasebni folderi po poslovnoj domeni unutar jednog procesa. Shared data layer (`AppDbContext`) pristupa svim shemama iz jednog mjesta.
+
+**Razlozi:**
+- Tim od 1 osobe — mikroservisna komunikacija je overhead bez benefita
+- Cross-domain upiti (npr. zaposlenici + odjel + godišnji) bili bi kompleksni u mikroservisima
+- Brži development, lakši debugging, jedan Docker container umjesto 4+
+- Ista PostgreSQL shema struktura ostaje (hr_codebook, hr_identity...) — eventualna migracija natrag moguća
+
+**Kompromisi:**
+- Moguće future skaliranje je manje fleksibilno (cijeli app ili ništa)
+- Moduli dijele DbContext — treba disciplina da ne dođe do kružnih ovisnosti
+
+**Zadržano:**
+- Ista PostgreSQL shema struktura (hr_codebook, hr_identity...)
+- Isti API rute i DTOs
+- Stari mikroservisi u `services/*_deprecated/` za referencu
+
+---
+
 _Nove odluke dodavati po formatu ADR-NNN._

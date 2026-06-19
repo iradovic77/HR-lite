@@ -5,11 +5,33 @@ Pravila su obavezna osim ako nije eksplicitno drugačije navedeno.
 
 ---
 
-## Arhitektura i granice servisa
+## Arhitektura
 
-- Svaki mikroservis je autonoman i vlasnički nad svojom PostgreSQL shemom (`hr_identity`, `hr_employee`, `hr_org`, `hr_leave`, `hr_document`).
-- **Nikad ne koristiti DB foreign key-eve između shema.** Veze između servisa su logičke i provode se na aplikativnom nivou putem ID-eva.
-- Direktni HTTP pozivi između servisa su dozvoljeni samo gdje je neophodna sinhrona konzistentnost. Svaki takav poziv mora biti dokumentovan u `docs/services/<ime-servisa>.md`.
+**Modularni monolit** — jedan .NET 8 Web API projekt (`hr-lite-api/`) s modulima po poslovnim domenama.
+
+Stara mikroservisna arhitektura zamijenjena 2026-06-19 (vidi ADR-007). Stari servisi su u `services/*_deprecated/`.
+
+### Struktura projekta
+
+```
+hr-lite-api/
+  Modules/
+    Codebook/    ← šifarnici (controllers, services, repositories, models, dtos)
+    Identity/    ← autentikacija/autorizacija
+    Employee/    ← placeholder
+    Leave/       ← placeholder
+    Org/         ← placeholder
+  Shared/
+    Data/        ← AppDbContext, Migrations
+    Models/      ← IAuditable, BaseEntity
+    Middleware/  ← error handling, JWT middleware
+```
+
+### Granice modula
+
+- Moduli komuniciraju kroz zajednički `AppDbContext` (ista PostgreSQL instanca)
+- **Nikad ne koristiti DB foreign key-eve između shema.** Veze su logičke, provode se na aplikativnom nivou putem ID-eva.
+- Nema HTTP poziva između modula — isti proces, isti DbContext
 
 ---
 
@@ -306,10 +328,19 @@ services/<ime-servisa>/
 
 ## Docker i okruženje
 
-- Svaki servis ima vlastiti `Dockerfile` (multi-stage build).
-- Lokalni razvoj pokreće se isključivo putem `docker-compose.yml` iz roota.
+- `hr-lite-api` ima vlastiti `Dockerfile` (multi-stage .NET 8 build).
+- Lokalni razvoj pokreće se putem `docker-compose.yml` iz roota (3 containera: hr-lite-api:5000, postgres:5433, frontend:3000).
 - Connection stringovi i tajni idu u `appsettings.Development.json` ili Docker environment varijable — nikad u `appsettings.json` koji ide u Git.
-- `.env` fajlovi se ne commituju; postoji `.env.example` kao predložak.
+
+### Poredak pokretanja
+
+```
+docker-compose up -d
+```
+
+- postgres zdravi → hr-lite-api starta → `db.Database.Migrate()` + admin seed → API dostupan
+- API: http://localhost:5000/swagger
+- Frontend: http://localhost:3000
 
 ---
 

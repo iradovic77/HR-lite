@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -10,20 +10,17 @@ import {
   Space,
   Typography,
   Tooltip,
+  Input,
   theme as antTheme,
 } from 'antd'
 import {
-  BookOutlined,
-  ManOutlined,
-  GlobalOutlined,
-  ApartmentOutlined,
-  EnvironmentOutlined,
-  HomeOutlined,
   MoonOutlined,
   SunOutlined,
   LeftOutlined,
+  SearchOutlined,
 } from '@ant-design/icons'
 import AppBreadcrumbs from '@/components/AppBreadcrumbs'
+import { menuConfig, buildMenuTree, type MenuItemConfig } from '@/config/menuConfig'
 
 const { Sider, Header, Content } = Layout
 const { Text } = Typography
@@ -33,17 +30,41 @@ interface MainLayoutProps {
   onThemeToggle: (dark: boolean) => void
 }
 
-const PAGE_TITLES: Record<string, string> = {
-  '/codebook/gender':       'codebook.gender.title',
-  '/codebook/country':      'codebook.country.title',
-  '/codebook/county':       'codebook.county.title',
-  '/codebook/municipality': 'codebook.municipality.title',
-  '/codebook/city':         'codebook.city.title',
+const SIDER_WIDTH            = 264
+const SIDER_COLLAPSED_WIDTH  = 80
+const TOGGLE_BTN_SIZE        = 18
+const FILTER_BAR_HEIGHT      = 48
+
+function getAncestorIds(route: string): string[] {
+  const item = menuConfig.find(i => i.route === route)
+  if (!item) return []
+  const ancestors: string[] = []
+  let parentId = item.parentId
+  while (parentId !== null) {
+    ancestors.push(parentId)
+    const parent = menuConfig.find(i => i.id === parentId)
+    parentId = parent?.parentId ?? null
+  }
+  return ancestors
 }
 
-const SIDER_WIDTH          = 200
-const SIDER_COLLAPSED_WIDTH = 80
-const TOGGLE_BTN_SIZE       = 18
+function filterItems(items: MenuItemConfig[], term: string, t: (k: string) => string): MenuItemConfig[] {
+  if (!term.trim()) return items
+  const normalized = term.trim().toLowerCase()
+  const matchingIds = new Set<string>()
+  items.forEach(item => {
+    if (t(item.labelKey).toLowerCase().includes(normalized)) {
+      matchingIds.add(item.id)
+      let parentId = item.parentId
+      while (parentId !== null) {
+        matchingIds.add(parentId)
+        const parent = items.find(i => i.id === parentId)
+        parentId = parent?.parentId ?? null
+      }
+    }
+  })
+  return items.filter(item => matchingIds.has(item.id))
+}
 
 export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
   const { t, i18n } = useTranslation()
@@ -51,26 +72,31 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
   const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
   const [btnHovered, setBtnHovered] = useState(false)
+  const [openKeys, setOpenKeys] = useState<string[]>(() =>
+    getAncestorIds(location.pathname)
+  )
+  const [filterTerm, setFilterTerm] = useState('')
   const { token } = antTheme.useToken()
 
-  const pageTitle = PAGE_TITLES[location.pathname]
-    ? t(PAGE_TITLES[location.pathname])
-    : t('app.name')
+  const currentItem = menuConfig.find(i => i.route === location.pathname)
+  const pageTitle = currentItem ? t(currentItem.labelKey) : t('app.name')
 
-  const menuItems = [
-    {
-      key: 'codebooks',
-      icon: <BookOutlined />,
-      label: t('nav.codebooks'),
-      children: [
-        { key: '/codebook/gender',       icon: <ManOutlined />,         label: t('nav.gender') },
-        { key: '/codebook/country',      icon: <GlobalOutlined />,      label: t('nav.country') },
-        { key: '/codebook/county',       icon: <ApartmentOutlined />,   label: t('nav.county') },
-        { key: '/codebook/municipality', icon: <EnvironmentOutlined />, label: t('nav.municipality') },
-        { key: '/codebook/city',         icon: <HomeOutlined />,        label: t('nav.city') },
-      ],
-    },
-  ]
+  const activeItems = useMemo(
+    () => filterItems(menuConfig, filterTerm, t),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filterTerm, i18n.language]
+  )
+
+  const menuItems = useMemo(
+    () => buildMenuTree(activeItems, t),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeItems, i18n.language]
+  )
+
+  // Kad filter aktiviran — expandaj sve matchane grupe automatski
+  const activeOpenKeys = filterTerm.trim()
+    ? activeItems.filter(item => activeItems.some(c => c.parentId === item.id)).map(i => i.id)
+    : openKeys
 
   const languageOptions = [
     { value: 'hr', label: '🇭🇷 HR' },
@@ -88,9 +114,9 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
         collapsed={collapsed}
         width={SIDER_WIDTH}
         collapsedWidth={SIDER_COLLAPSED_WIDTH}
-        style={{ background: token.colorBgContainer }}
+        style={{ background: token.colorBgContainer, overflow: 'hidden' }}
       >
-        {/* Logo / naziv aplikacije */}
+        {/* Logo / naziv aplikacije — fiksirano na vrhu */}
         <div style={{
           height: 64,
           display: 'flex',
@@ -104,14 +130,55 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
           </Text>
         </div>
 
-        <Menu
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          defaultOpenKeys={['codebooks']}
-          items={menuItems}
-          onClick={({ key }) => navigate(key)}
-          style={{ borderRight: 0, marginTop: 8 }}
-        />
+        {/* Menu — scroll između logoa i filter inputa */}
+        <div
+          className="sidebar-scroll"
+          style={{
+            position: 'absolute',
+            top: 64,
+            left: 0,
+            right: 0,
+            bottom: collapsed ? 0 : FILTER_BAR_HEIGHT,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+          }}
+        >
+          <Menu
+            mode="inline"
+            inlineCollapsed={collapsed}
+            selectedKeys={[location.pathname]}
+            openKeys={collapsed ? [] : activeOpenKeys}
+            onOpenChange={keys => { if (!filterTerm.trim()) setOpenKeys(keys) }}
+            items={menuItems}
+            onClick={({ key }) => { if (key.startsWith('/')) navigate(key) }}
+            style={{ borderRight: 0, marginTop: 8 }}
+          />
+        </div>
+
+        {/* Filter input — fiksirano na dnu, sakriven kad je collapsed */}
+        {!collapsed && (
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: FILTER_BAR_HEIGHT,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 12px',
+            borderTop: `1px solid ${token.colorBorderSecondary}`,
+            background: token.colorBgContainer,
+          }}>
+            <Input
+              size="small"
+              placeholder={t('menu.filterPlaceholder')}
+              prefix={<SearchOutlined style={{ color: token.colorTextTertiary }} />}
+              allowClear
+              value={filterTerm}
+              onChange={e => setFilterTerm(e.target.value)}
+            />
+          </div>
+        )}
       </Sider>
 
       {/* ── Collapse toggle button ────────────────────────── */}
@@ -164,13 +231,11 @@ export default function MainLayout({ isDark, onThemeToggle }: MainLayoutProps) {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          {/* Lijeva strana: naslov + breadcrumbs */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '10px 0' }}>
             <Text strong style={{ fontSize: 16, lineHeight: '22px' }}>{pageTitle}</Text>
             <AppBreadcrumbs />
           </div>
 
-          {/* Desni dio topbara */}
           <Space size="middle">
             <Select
               value={i18n.language}

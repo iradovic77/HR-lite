@@ -236,6 +236,78 @@
     "error_in_use": "This record cannot be deleted because it is used elsewhere in the system.",
     "error_delete": "An error occurred while deleting the record.",
     "only_active": "Show active only",
-    "export_csv": "Export CSV"
+    "export_csv": "Export CSV",
+    "comingSoon": "This feature is coming soon."
+  },
+  "menu": {
+    "osobno-grupa": "Personal",
+    "osobno": {
+      "mojiPodaci": "My data",
+      "mojiGodisnji": "My annual leave"
+    },
+    "poslovanje-grupa": "Business",
+    "poslovanje": {
+      "podaciOOsobama": "Person data",
+      "zaposlenici": "Employees",
+      "agencijskiRadnici": "Agency workers",
+      "studentiUcenici": "Students & pupils",
+      "ugovoriODjelu": "Service contracts",
+      "organizacija-grupa": "Organization",
+      "organizacija": {
+        "hijerarhija": "Org hierarchy",
+        "katalogPoslova": "Job catalog",
+        "radnaMjesta": "Job positions"
+      },
+      "godisnjiOdmori-grupa": "Annual leave",
+      "godisnjiOdmori": {
+        "parametriZaObracun": "Calculation parameters",
+        "kalendarPrisutnosti": "Attendance calendar"
+      },
+      "upravljanjeUgovorima-grupa": "Contract management",
+      "upravljanjeUgovorima": {
+        "masovnoProduzenje": "Bulk contract extension"
+      },
+      "upravljanjeDokumentima-grupa": "Document management",
+      "upravljanjeDokumentima": {
+        "katalogDokumenata": "Document catalog"
+      },
+      "upravljanjeZaduzenjima-grupa": "Asset management",
+      "upravljanjeZaduzenjima": {
+        "katalogOpreme": "Equipment catalog"
+      }
+    },
+    "sifarnici-grupa": "Codebooks",
+    "sifarnici": {
+      "osnovni-grupa": "Basic",
+      "osnovni": {
+        "spolovi": "Genders"
+      },
+      "adrese-grupa": "Addresses",
+      "adrese": {
+        "drzave": "Countries",
+        "zupanije": "Counties",
+        "opcine": "Municipalities",
+        "naselja": "Settlements"
+      },
+      "zaposlenje-grupa": "Employment",
+      "zaposlenje": {
+        "tipoviRadnogOdnosa": "Employment types"
+      },
+      "godisnjiOdmori-grupa": "Annual leave",
+      "godisnjiOdmori": {
+        "praznici": "Holidays"
+      },
+      "dokumenti-grupa": "Documents",
+      "dokumenti": {
+        "tipoviDokumenata": "Document types"
+      },
+      "organizacija-grupa": "Organization",
+      "organizacija": {
+        "vrsteOrganizacijskihJedinica": "Org unit types"
+      }
+    },
+    "administracija": "System administration",
+    "upute": "Help",
+    "filterPlaceholder": "Filter menu..."
   }
 }

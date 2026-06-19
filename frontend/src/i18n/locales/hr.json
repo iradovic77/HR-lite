@@ -236,6 +236,78 @@
     "error_in_use": "Zapis nije moguće obrisati jer se koristi u sustavu.",
     "error_delete": "Greška pri brisanju zapisa.",
     "only_active": "Prikaži samo aktivne",
-    "export_csv": "Izvoz u CSV"
+    "export_csv": "Izvoz u CSV",
+    "comingSoon": "Ova funkcionalnost je u izradi."
+  },
+  "menu": {
+    "osobno-grupa": "Osobno",
+    "osobno": {
+      "mojiPodaci": "Moji podaci",
+      "mojiGodisnji": "Moji godišnji odmori"
+    },
+    "poslovanje-grupa": "Poslovanje",
+    "poslovanje": {
+      "podaciOOsobama": "Podaci o osobama",
+      "zaposlenici": "Zaposlenici",
+      "agencijskiRadnici": "Agencijski radnici",
+      "studentiUcenici": "Studenti i učenici",
+      "ugovoriODjelu": "Ugovori o djelu",
+      "organizacija-grupa": "Organizacija",
+      "organizacija": {
+        "hijerarhija": "Organizacijska hijerarhija",
+        "katalogPoslova": "Katalog poslova",
+        "radnaMjesta": "Radna mjesta"
+      },
+      "godisnjiOdmori-grupa": "Godišnji odmori",
+      "godisnjiOdmori": {
+        "parametriZaObracun": "Parametri za obračun",
+        "kalendarPrisutnosti": "Kalendar prisutnosti"
+      },
+      "upravljanjeUgovorima-grupa": "Upravljanje ugovorima",
+      "upravljanjeUgovorima": {
+        "masovnoProduzenje": "Masovno produženje ugovora"
+      },
+      "upravljanjeDokumentima-grupa": "Upravljanje dokumentima",
+      "upravljanjeDokumentima": {
+        "katalogDokumenata": "Katalog dokumenata"
+      },
+      "upravljanjeZaduzenjima-grupa": "Upravljanje zaduženjima",
+      "upravljanjeZaduzenjima": {
+        "katalogOpreme": "Katalog opreme"
+      }
+    },
+    "sifarnici-grupa": "Šifarnici",
+    "sifarnici": {
+      "osnovni-grupa": "Osnovni",
+      "osnovni": {
+        "spolovi": "Spolovi"
+      },
+      "adrese-grupa": "Adrese",
+      "adrese": {
+        "drzave": "Države",
+        "zupanije": "Županije",
+        "opcine": "Općine",
+        "naselja": "Naselja"
+      },
+      "zaposlenje-grupa": "Zaposlenje",
+      "zaposlenje": {
+        "tipoviRadnogOdnosa": "Tipovi radnog odnosa"
+      },
+      "godisnjiOdmori-grupa": "Godišnji odmori",
+      "godisnjiOdmori": {
+        "praznici": "Praznici"
+      },
+      "dokumenti-grupa": "Dokumenti",
+      "dokumenti": {
+        "tipoviDokumenata": "Tipovi dokumenata"
+      },
+      "organizacija-grupa": "Organizacija",
+      "organizacija": {
+        "vrsteOrganizacijskihJedinica": "Vrste organizacijskih jedinica"
+      }
+    },
+    "administracija": "Administracija sustava",
+    "upute": "Upute",
+    "filterPlaceholder": "Pretraži meni..."
   }
 }

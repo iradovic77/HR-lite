@@ -1,45 +1,120 @@
 import { Breadcrumb } from 'antd'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { menuConfig, type MenuItemConfig } from '@/config/menuConfig'
 
-interface RouteEntry {
-  labelKey: string
-  parent?: string
+interface DropdownItem {
+  key: string
+  label: string
+  children?: DropdownItem[]
+  onClick?: () => void
 }
 
-export const ROUTE_CONFIG: Record<string, RouteEntry> = {
-  '/codebook':              { labelKey: 'breadcrumbs.codebooks' },
-  '/codebook/gender':       { labelKey: 'breadcrumbs.gender',       parent: '/codebook' },
-  '/codebook/country':      { labelKey: 'breadcrumbs.country',      parent: '/codebook' },
-  '/codebook/county':       { labelKey: 'breadcrumbs.county',       parent: '/codebook' },
-  '/codebook/municipality': { labelKey: 'breadcrumbs.municipality', parent: '/codebook' },
-  '/codebook/city':         { labelKey: 'breadcrumbs.city',         parent: '/codebook' },
+function getAncestors(id: string): MenuItemConfig[] {
+  const item = menuConfig.find(i => i.id === id)
+  if (!item) return []
+  if (!item.parentId) return [item]
+  return [...getAncestors(item.parentId), item]
 }
 
-function buildCrumbs(path: string): string[] {
-  const config = ROUTE_CONFIG[path]
-  if (!config) return []
-  if (config.parent) return [...buildCrumbs(config.parent), path]
-  return [path]
+function getFirstLeaf(id: string): string | undefined {
+  const children = menuConfig
+    .filter(i => i.parentId === id)
+    .sort((a, b) => a.ordinal - b.ordinal)
+  for (const child of children) {
+    if (child.route) return child.route
+    const leaf = getFirstLeaf(child.id)
+    if (leaf) return leaf
+  }
+  return undefined
+}
+
+function resolveRoute(item: MenuItemConfig): string | undefined {
+  return item.route ?? getFirstLeaf(item.id)
+}
+
+function buildDropdownItems(
+  parentId: string | null,
+  t: (k: string) => string,
+  navigate: (route: string) => void,
+): DropdownItem[] {
+  return menuConfig
+    .filter(i => i.parentId === parentId)
+    .sort((a, b) => a.ordinal - b.ordinal)
+    .map(child => {
+      const hasChildren = menuConfig.some(i => i.parentId === child.id)
+      if (hasChildren) {
+        return {
+          key: child.id,
+          label: t(child.labelKey),
+          children: buildDropdownItems(child.id, t, navigate),
+        }
+      }
+      return {
+        key: child.id,
+        label: t(child.labelKey),
+        onClick: () => {
+          const route = resolveRoute(child)
+          if (route) navigate(route)
+        },
+      }
+    })
 }
 
 export default function AppBreadcrumbs() {
   const { pathname } = useLocation()
   const { t } = useTranslation()
+  const navigate = useNavigate()
 
-  const crumbs = buildCrumbs(pathname)
-  if (crumbs.length === 0) return null
+  const current = menuConfig.find(item => item.route === pathname)
+  if (!current) return null
 
+  const crumbs = getAncestors(current.id)
   const lastIndex = crumbs.length - 1
+
+  // Sintetički root "HR-lite" — dropdown s top-level stavkama (rekurzivno)
+  const rootBreadcrumb = {
+    title: (
+      <span style={{ cursor: 'pointer' }} onClick={() => navigate('/sifarnici/spolovi')}>
+        {t('app.name')}
+      </span>
+    ),
+    menu: { items: buildDropdownItems(null, t, navigate) as any },
+  }
+
+  const ancestorBreadcrumbs = crumbs.map((item, index) => {
+    const isLast = index === lastIndex
+
+    // Dropdown prikazuje djecu tog čvora, rekurzivno za grupe
+    const hasChildren = menuConfig.some(i => i.parentId === item.id)
+    const dropdownItems = !isLast && hasChildren
+      ? buildDropdownItems(item.id, t, navigate)
+      : undefined
+
+    const title = isLast
+      ? t(item.labelKey)
+      : (
+        <span
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            const route = resolveRoute(item)
+            if (route && route !== pathname) navigate(route)
+          }}
+        >
+          {t(item.labelKey)}
+        </span>
+      )
+
+    return {
+      title,
+      menu: dropdownItems ? { items: dropdownItems as any } : undefined,
+    }
+  })
 
   return (
     <Breadcrumb
       separator="›"
-      items={crumbs.map((path, index) => ({
-        title: index === lastIndex
-          ? t(ROUTE_CONFIG[path].labelKey)
-          : <Link to={path}>{t(ROUTE_CONFIG[path].labelKey)}</Link>,
-      }))}
+      items={[rootBreadcrumb, ...ancestorBreadcrumbs]}
       style={{ fontSize: 12, lineHeight: '18px' }}
     />
   )
