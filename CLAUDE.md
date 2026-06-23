@@ -5,6 +5,15 @@ Pravila su obavezna osim ako nije eksplicitno drugačije navedeno.
 
 ---
 
+## Kritična pravila — baza podataka
+
+- **Nikad ne pokretati `dotnet ef database update` automatski.** Uvijek generirati migraciju, prikazati SQL preview (`dotnet ef migrations script`), i čekati eksplicitnu potvrdu korisnika prije primjene.
+- **Nikad ne dropati tablice, sheme ili bazu bez eksplicitne potvrde korisnika.**
+- Svaka destructive operacija (drop, truncate, recreate, seed brisanje) mora biti jasno najavljena s opisom što će se izgubiti — i čekati potvrdu.
+- **Migracije se generiraju, ne primjenjuju.** Korisnik sam pokreće `database update` kad je spreman.
+
+---
+
 ## Arhitektura
 
 **Modularni monolit** — jedan .NET 8 Web API projekt (`hr-lite-api/`) s modulima po poslovnim domenama.
